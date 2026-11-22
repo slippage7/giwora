@@ -1190,78 +1190,59 @@ button:disabled {
 }
 
 
-/* Homepage developer tools */
-.developer-tools-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
-}
 
-.developer-tool-card {
+
+/* Compact GIWA testnet links at the bottom of the homepage */
+.homepage-quick-links {
   display: flex;
-  align-items: flex-start;
-  gap: 16px;
-  min-width: 0;
-  padding: 22px;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 17px;
+  margin-top: 30px;
+  padding: 17px 20px;
   border: 1px solid var(--border);
-  border-radius: 11px;
-  background: linear-gradient(145deg, #17141a, #131116);
+  border-radius: 9px;
+  background: #151218;
 }
 
-.developer-tool-icon {
-  display: grid;
-  place-items: center;
-  width: 42px;
-  height: 42px;
-  flex: 0 0 42px;
-  border: 1px solid rgba(242, 160, 91, 0.25);
-  border-radius: 10px;
-  background: rgba(242, 160, 91, 0.07);
-  color: var(--orange-bright);
-  font-size: 23px;
-}
-
-.developer-tool-copy {
-  min-width: 0;
-}
-
-.developer-tool-label {
-  color: var(--orange);
+.homepage-quick-links-label {
+  color: #8e8692;
   font: 9px 'DM Mono', monospace;
   letter-spacing: 1.1px;
 }
 
-.developer-tool-copy h3 {
-  margin: 8px 0 6px;
-  color: #f7f0eb;
-  font-size: 17px;
-  font-weight: 800;
-}
-
-.developer-tool-copy p {
-  margin: 0;
-  color: #8e8692;
-  font-size: 11px;
-  line-height: 1.7;
-}
-
-.developer-tool-link {
+.homepage-quick-links a {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  margin-top: 16px;
+  gap: 7px;
   color: var(--orange-bright);
   font-size: 11px;
   font-weight: 800;
   text-decoration: none;
+  transition: color 160ms ease;
 }
 
-.developer-tool-link:hover {
+.homepage-quick-links a:hover {
   color: #ffd0a4;
 }
 
-@media (max-width: 760px) {
-  .developer-tools-grid {
-    grid-template-columns: 1fr;
+.homepage-quick-links a span {
+  font-size: 13px;
+}
+
+.homepage-quick-links-divider {
+  width: 1px;
+  height: 17px;
+  background: var(--border);
+}
+
+@media (max-width: 560px) {
+  .homepage-quick-links {
+    gap: 13px;
+    padding: 15px;
+  }
+
+  .homepage-quick-links-label {
+    width: 100%;
   }
 }
