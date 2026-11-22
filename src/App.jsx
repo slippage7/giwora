@@ -129,7 +129,7 @@ function deriveConfigFromTemplate(
 
   if (template.config.migrationMode !== AmmoraV4MigrationMode.Concentrated) {
     throw new Error(
-      'This GIWORA Config Studio currently supports the concentrated graduation template only.'
+      'This GIWORA Configuration Studio currently supports the concentrated graduation template only.'
     );
   }
 
@@ -1053,7 +1053,7 @@ export default function App() {
             onClick={() => setPage('Config Studio')}
           >
             <span className="nav-symbol">＋</span>
-            Config Studio
+            Configuration Studio
           </button>
 
           <button
@@ -1251,7 +1251,7 @@ export default function App() {
                     className="primary-button"
                     onClick={() => setPage('Config Studio')}
                   >
-                    Open Config Studio ↗
+                    Open Configuration Studio ↗
                   </button>
                 </div>
               </section>
@@ -1453,7 +1453,7 @@ export default function App() {
             <section className="registry-section" style={{ marginTop: 0 }}>
               <div className="section-heading">
                 <div>
-                  <div className="section-kicker">GIWORA / CONFIG STUDIO</div>
+                  <div className="section-kicker">GIWORA / CONFIGURATION STUDIO</div>
                   <h2>Create Your Own Launch Configuration</h2>
                   <p>
                     Template #24 · GIWA Sepolia · Concentrated graduation. Every
@@ -1764,14 +1764,14 @@ export default function App() {
                   <div className="read-status-copy">
                     <strong>No GIWORA configuration has been created yet.</strong>
                     <span>
-                      Create and confirm your own GIWORA Configuration in Config Studio first.
+                      Create and confirm your own GIWORA Configuration in Configuration Studio first.
                       Token launches can only use configurations you created and confirmed.
                     </span>
                     <button
                       className="text-button"
                       onClick={() => setPage('Config Studio')}
                     >
-                      Go to Config Studio ↗
+                      Go to Configuration Studio ↗
                     </button>
                   </div>
                 </div>
