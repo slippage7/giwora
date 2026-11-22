@@ -1263,7 +1263,7 @@ export default function App() {
               <div className="section-heading">
                 <div>
                   <div className="section-kicker">ON-CHAIN DATA</div>
-                  <h2>Launch configurations</h2>
+                  <h2>Launch Configurations</h2>
                   <p>Read the GIWA V4 registry directly from the blockchain.</p>
                 </div>
 
@@ -1272,7 +1272,7 @@ export default function App() {
                   onClick={readRegistry}
                   disabled={busy || !connected || !correctNetwork}
                 >
-                  {busy ? 'Reading...' : 'Read registry ↻'}
+                  {busy ? 'Reading...' : 'Read Registry ↻'}
                 </button>
               </div>
 
@@ -1286,7 +1286,7 @@ export default function App() {
                 </div>
                 <div className="read-status-copy">
                   <strong>
-                    {readStatus === 'idle' && 'Ready to inspect registry'}
+                    {readStatus === 'idle' && 'Ready to Inspect Registry'}
                     {readStatus === 'loading' && 'Reading GIWA Sepolia...'}
                     {readStatus === 'reading' && 'Reading Config entries...'}
                     {readStatus === 'success' &&
@@ -1454,7 +1454,7 @@ export default function App() {
               <div className="section-heading">
                 <div>
                   <div className="section-kicker">GIWORA / CONFIG STUDIO</div>
-                  <h2>Create your own launch configuration.</h2>
+                  <h2>Create Your Own Launch Configuration</h2>
                   <p>
                     Template #24 · GIWA Sepolia · Concentrated graduation. Every
                     team recipient is set to your connected wallet.
