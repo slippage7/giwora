@@ -1,16 +1,31 @@
-# React + Vite
+# GIWORA
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+**An independent token launchpad built on GIWA Sepolia.**
 
-Currently, two official plugins are available:
+GIWORA is an independent Web3 project focused on making token launches more accessible through a clean, intuitive and user-friendly interface.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Built with the Ammora SDK and deployed on the GIWA Sepolia testnet, GIWORA provides a dedicated workspace for exploring token launch configurations and launch workflows.
 
-## React Compiler
+## Project information
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Project:** GIWORA
+- **Network:** GIWA Sepolia
+- **Chain ID:** 91342
+- **Environment:** Testnet
+- **SDK:** Ammora SDK
+- **Website:** https://giwora.vercel.app/
 
-## Expanding the Oxlint configuration
+## Workspace
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+- **Overview:** Project dashboard and network information.
+- **Config registry:** Browse available launch configurations.
+- **Config Studio:** Explore and manage token launch configurations.
+- **Token launch:** Access the token launch interface.
+
+## Disclaimer
+
+GIWORA is an independent community-built project and is not an official Ammora product. This application is currently deployed on a test network and is intended for testing and experimentation.
+
+---
+
+Built independently for the GIWA ecosystem.
