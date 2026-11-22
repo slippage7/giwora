@@ -1104,7 +1104,7 @@ export default function App() {
                 onClick={connectWallet}
                 disabled={busy}
               >
-                Connect wallet ↗
+                Connect Wallet ↗
               </button>
             ) : correctNetwork ? (
               <button
