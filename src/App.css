@@ -1194,11 +1194,14 @@ button:disabled {
 
 /* Compact GIWA testnet links at the bottom of the homepage */
 .homepage-quick-links {
+  width: 100%;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
+  justify-content: flex-start;
   flex-wrap: wrap;
   gap: 17px;
-  margin-top: 30px;
+  margin: 30px 0 0;
   padding: 17px 20px;
   border: 1px solid var(--border);
   border-radius: 9px;
