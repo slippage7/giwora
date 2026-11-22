@@ -368,7 +368,7 @@ export default function App() {
 
     if (!provider) {
       setNotice(
-        'MetaMask was not detected. Open GIWORA in a browser with MetaMask.'
+        'No compatible wallet was detected. Connect using a supported wallet.'
       );
       return;
     }
@@ -404,7 +404,7 @@ export default function App() {
     const provider = window.ethereum;
 
     if (!provider) {
-      setNotice('MetaMask was not detected.');
+      setNotice('No compatible wallet was detected.');
       return;
     }
 
@@ -451,7 +451,7 @@ export default function App() {
     const provider = window.ethereum;
 
     if (!provider) {
-      throw new Error('MetaMask was not detected.');
+      throw new Error('No compatible wallet was detected.');
     }
 
     const activeChain = Number.parseInt(
@@ -460,7 +460,7 @@ export default function App() {
     );
 
     if (activeChain !== CHAIN_ID) {
-      throw new Error('Switch MetaMask to GIWA Sepolia first.');
+      throw new Error('Switch your wallet to GIWA Sepolia first.');
     }
 
     const client = createPublicClient({
@@ -495,7 +495,7 @@ export default function App() {
 
   async function readRegistry() {
     if (!connected || !correctNetwork) {
-      setNotice('Connect MetaMask to GIWA Sepolia first.');
+      setNotice('Connect your wallet to GIWA Sepolia first.');
       return;
     }
 
@@ -549,7 +549,7 @@ export default function App() {
 
   async function inspectConfig(id = selectedId) {
     if (!connected || !correctNetwork) {
-      setNotice('Connect MetaMask to GIWA Sepolia first.');
+      setNotice('Connect your wallet to GIWA Sepolia first.');
       return;
     }
 
@@ -600,7 +600,7 @@ export default function App() {
 
   async function prepareConfig() {
     if (!connected || !correctNetwork) {
-      setNotice('Connect MetaMask to GIWA Sepolia first.');
+      setNotice('Connect your wallet to GIWA Sepolia first.');
       return;
     }
 
@@ -686,7 +686,7 @@ export default function App() {
     const provider = window.ethereum;
 
     if (!provider) {
-      setError('MetaMask was not detected.');
+      setError('No compatible wallet was detected.');
       return;
     }
 
@@ -863,7 +863,7 @@ export default function App() {
     const provider = window.ethereum;
 
     if (!provider) {
-      setError('MetaMask was not detected.');
+      setError('No compatible wallet was detected.');
       return;
     }
 
@@ -1167,7 +1167,7 @@ export default function App() {
                       className="primary-button"
                       onClick={() => setPage('Config Studio')}
                     >
-                      Build GIWORA Config <span>↗</span>
+                      Build GIWORA Configuration <span>↗</span>
                     </button>
 
                     <button
@@ -1294,7 +1294,7 @@ export default function App() {
                     {readStatus === 'error' && 'Registry read failed'}
                   </strong>
                   <span>
-                    Read-only operation. No wallet signature or funds required.
+                    Read-only operation. No wallet signature or funds are required.
                   </span>
                   {readStatus === 'success' && (
                     <small>
@@ -1465,7 +1465,7 @@ export default function App() {
               <div className="selected-config">
                 <div className="section-kicker">TEAM WALLET</div>
                 <h3 style={{ marginTop: 8 }}>
-                  {connected ? shortAddress(account) : 'Connect wallet first'}
+                  {connected ? shortAddress(account) : 'Connect Your Wallet First'}
                 </h3>
 
                 <div className="selected-facts">
@@ -1665,8 +1665,8 @@ export default function App() {
                     disabled={busy || !connected || !correctNetwork}
                   >
                     {busy && configStatus === 'creating'
-                      ? 'Waiting for MetaMask...'
-                      : 'Create GIWORA Configuration in MetaMask ↗'}
+                      ? 'Waiting for wallet confirmation...'
+                      : 'Create GIWORA Configuration ↗'}
                   </button>
 
                   <p
@@ -1679,7 +1679,7 @@ export default function App() {
                   >
                     This sends a transaction to the GIWA Sepolia Configuration
                     Registry. Review the exact network, target and gas in
-                    MetaMask before approving. The transaction creates a new
+                    your wallet before approving. The transaction creates a new
                     immutable Configuration; it does not create a token.
                   </p>
                 </div>
@@ -1731,14 +1731,14 @@ export default function App() {
                     style={{ marginTop: 18 }}
                     onClick={() => setPage('Token Launch')}
                   >
-                    Continue to token launch ↗
+                    Continue to Token Launch ↗
                   </button>
                 </div>
               )}
 
               {configStatus === 'error' && (
                 <div className="review-note" style={{ marginTop: 14 }}>
-                  <strong>Configuration Creation Stopped</strong>
+                  <strong>Configuration Creation Failed</strong>
                   <span>{error}</span>
                 </div>
               )}
@@ -1752,8 +1752,8 @@ export default function App() {
                   <div className="section-kicker">GIWORA / TOKEN LAUNCH</div>
                   <h2>Launch a Token with Your Configuration</h2>
                   <p>
-                    Create a token and its Ammora Launch Curve using your own GIWORA
-                    Configuration after it has been confirmed.
+                    Create a Token and Its Ammora Launch Curve Using Your Own GIWORA
+                    Configuration After It Has Been Confirmed.
                   </p>
                 </div>
               </div>
@@ -1762,7 +1762,7 @@ export default function App() {
                 <div className="read-status-panel">
                   <div className="read-status-icon">!</div>
                   <div className="read-status-copy">
-                    <strong>No GIWORA Configuration has been created yet.</strong>
+                    <strong>No GIWORA configuration has been created yet.</strong>
                     <span>
                       Create and confirm your own GIWORA Configuration in Config Studio first.
                       Token launches can only use configurations you created and confirmed.
@@ -1891,13 +1891,13 @@ export default function App() {
                     disabled={busy || !correctNetwork || !metadataURI.trim()}
                   >
                     {busy && launchStatus === 'preparing'
-                      ? 'Preparing token...'
-                      : 'Create token in MetaMask ↗'}
+                      ? 'Preparing Token...'
+                      : 'Create Token ↗'}
                   </button>
 
                   {createdLaunch && (
                     <div className="review-note" style={{ marginTop: 18 }}>
-                      <strong>Token creation confirmed</strong>
+                      <strong>Token Creation Confirmed</strong>
                       <span>
                         Token: {createdLaunch.name} ({createdLaunch.symbol})
                         <br />
