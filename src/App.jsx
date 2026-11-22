@@ -1023,7 +1023,7 @@ export default function App() {
             <div className="brand-name">
               GIWORA<span>.</span>
             </div>
-            <div className="brand-subtitle">TOKEN LAUNCHPAD</div>
+            <div className="brand-subtitle">TOKEN LAUNCH PLATFORM</div>
           </div>
         </div>
 
@@ -1147,7 +1147,7 @@ export default function App() {
                 <div className="hero-copy">
                   <div className="eyebrow">
                     <span></span>
-                    INDEPENDENT TOKEN LAUNCHPAD
+                    TOKEN LAUNCH PLATFORM
                   </div>
 
                   <h1>
