@@ -1236,6 +1236,42 @@ export default function App() {
                 </div>
               </section>
 
+              <section className="registry-section developer-tools-section">
+                <div className="section-heading">
+                  <div>
+                    <div className="section-kicker">GIWA SEPOLIA</div>
+                    <h2>Developer Tools</h2>
+                    <p>Get testnet ETH and move it between Ethereum Sepolia and GIWA Sepolia.</p>
+                  </div>
+                </div>
+
+                <div className="developer-tools-grid">
+                  <article className="developer-tool-card">
+                    <div className="developer-tool-icon">↧</div>
+                    <div className="developer-tool-copy">
+                      <div className="developer-tool-label">TESTNET GAS</div>
+                      <h3>GIWA Faucet</h3>
+                      <p>Get free testnet ETH to create configurations and launch tokens on GIWA Sepolia.</p>
+                      <a className="developer-tool-link" href="https://faucet.giwa.io/" target="_blank" rel="noopener noreferrer">
+                        Get Test ETH <span>↗</span>
+                      </a>
+                    </div>
+                  </article>
+
+                  <article className="developer-tool-card">
+                    <div className="developer-tool-icon">⇄</div>
+                    <div className="developer-tool-copy">
+                      <div className="developer-tool-label">CROSS-CHAIN</div>
+                      <h3>GIWA Bridge</h3>
+                      <p>Transfer testnet ETH between Ethereum Sepolia and GIWA Sepolia.</p>
+                      <a className="developer-tool-link" href="https://sepolia-bridge.giwa.io/" target="_blank" rel="noopener noreferrer">
+                        Open Bridge <span>↗</span>
+                      </a>
+                    </div>
+                  </article>
+                </div>
+              </section>
+
               <section className="registry-section">
                 <div className="section-heading">
                   <div>
