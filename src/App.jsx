@@ -1750,10 +1750,10 @@ export default function App() {
               <div className="section-heading">
                 <div>
                   <div className="section-kicker">GIWORA / TOKEN LAUNCH</div>
-                  <h2>Launch a token on your Config.</h2>
+                  <h2>Launch a Token with Your Config</h2>
                   <p>
-                    Create a token and its Ammora Launch Curve using your own
-                    confirmed GIWORA Config.
+                    Create a token and its Ammora Launch Curve using your own GIWORA
+                    Config after it has been confirmed.
                   </p>
                 </div>
               </div>
@@ -1764,8 +1764,8 @@ export default function App() {
                   <div className="read-status-copy">
                     <strong>No GIWORA Config has been created yet.</strong>
                     <span>
-                      Complete Config Studio first. The token launch flow will
-                      only accept your own confirmed Config.
+                      Create and confirm your own GIWORA Config in Config Studio first.
+                      Token launches can only use configurations you created and confirmed.
                     </span>
                     <button
                       className="text-button"
