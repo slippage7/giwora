@@ -538,7 +538,7 @@ export default function App() {
       }
 
       setReadStatus('success');
-      setNotice(`Registry read complete. ${total} Configs registered.`);
+      setNotice(`Registry read complete. ${total} Configurations registered.`);
     } catch (err) {
       setReadStatus('error');
       setError(errorMessage(err));
@@ -629,7 +629,7 @@ export default function App() {
       if (
         template.config.migrationMode !== AmmoraV4MigrationMode.Concentrated
       ) {
-        throw new Error('Template #24 is not a concentrated migration Config.');
+        throw new Error('Template #24 is not a concentrated migration Configuration.');
       }
 
       const currentQuoteDecimals = await client.readContract({
@@ -679,7 +679,7 @@ export default function App() {
 
   async function createConfig() {
     if (!preview) {
-      setError('Prepare a Config preview first.');
+      setError('Prepare a Configuration preview first.');
       return;
     }
 
@@ -706,7 +706,7 @@ export default function App() {
         activeAccount.toLowerCase() !== account.toLowerCase()
       ) {
         throw new Error(
-          'Wallet account changed. Prepare a new Config preview.'
+          'Wallet account changed. Prepare a new Configuration preview.'
         );
       }
 
@@ -727,7 +727,7 @@ export default function App() {
         template.configHash.toLowerCase() !== preview.templateHash.toLowerCase()
       ) {
         throw new Error(
-          'Template hash changed. Prepare and review a fresh Config.'
+          'Template hash changed. Prepare and review a fresh Configuration.'
         );
       }
 
@@ -755,7 +755,7 @@ export default function App() {
         freshPlan.reviewHash.toLowerCase() !== preview.reviewHash.toLowerCase()
       ) {
         throw new Error(
-          'Review hash changed. Please inspect the updated Config preview before signing.'
+          'Review hash changed. Please inspect the updated Configuration preview before signing.'
         );
       }
 
@@ -774,7 +774,7 @@ export default function App() {
       });
 
       setConfigStatus('submitted');
-      setNotice(`Config transaction submitted: ${hash}`);
+      setNotice(`Configuration transaction submitted: ${hash}`);
 
       const receipt = await client.waitForTransactionReceipt({
         hash,
@@ -782,7 +782,7 @@ export default function App() {
 
       if (receipt.status !== 'success') {
         throw new Error(
-          `Config transaction reverted. Transaction hash: ${hash}`
+          `Configuration transaction reverted. Transaction hash: ${hash}`
         );
       }
 
@@ -828,7 +828,7 @@ export default function App() {
         !recipientsMatch
       ) {
         throw new Error(
-          `The Config receipt did not match all reviewed roles and calldata. Save this transaction hash: ${hash}`
+          `The Configuration receipt did not match all reviewed roles and calldata. Save this transaction hash: ${hash}`
         );
       }
 
@@ -1043,7 +1043,7 @@ export default function App() {
             onClick={() => setPage('Registry')}
           >
             <span className="nav-symbol">◈</span>
-            Config Registry
+            Configuration Registry
           </button>
 
           <button
@@ -1240,7 +1240,7 @@ export default function App() {
                 <div className="section-heading">
                   <div>
                     <div className="section-kicker">GET STARTED</div>
-                    <h2>Build your own launch configuration.</h2>
+                    <h2>Build Your Own Launch Configuration</h2>
                     <p>
                       GIWORA uses a reviewed Ammora template and assigns all
                       team roles to your connected wallet.
@@ -1288,7 +1288,7 @@ export default function App() {
                   <strong>
                     {readStatus === 'idle' && 'Ready to Inspect Registry'}
                     {readStatus === 'loading' && 'Reading GIWA Sepolia...'}
-                    {readStatus === 'reading' && 'Reading Config entries...'}
+                    {readStatus === 'reading' && 'Reading Configuration Entries...'}
                     {readStatus === 'success' &&
                       'On-chain registry read complete'}
                     {readStatus === 'error' && 'Registry read failed'}
@@ -1309,7 +1309,7 @@ export default function App() {
                 {configs.map((entry) => (
                   <article className="config-card" key={String(entry.configId)}>
                     <div className="config-card-number">
-                      <span>CONFIG</span>
+                      <span>CONFIGURATION</span>
                       <strong>#{String(entry.configId)}</strong>
                     </div>
 
@@ -1377,7 +1377,7 @@ export default function App() {
                     onClick={() => inspectConfig()}
                     disabled={busy || !connected || !correctNetwork}
                   >
-                    {busy ? 'Inspecting...' : 'Inspect Config ↗'}
+                    {busy ? 'Inspecting...' : 'Inspect Configuration ↗'}
                   </button>
                 </div>
 
@@ -1677,7 +1677,7 @@ export default function App() {
                       marginTop: 12,
                     }}
                   >
-                    This sends a transaction to the GIWA Sepolia Config
+                    This sends a transaction to the GIWA Sepolia Configuration
                     Registry. Review the exact network, target and gas in
                     MetaMask before approving. The transaction creates a new
                     immutable Configuration; it does not create a token.
@@ -1753,7 +1753,7 @@ export default function App() {
                   <h2>Launch a Token with Your Configuration</h2>
                   <p>
                     Create a token and its Ammora Launch Curve using your own GIWORA
-                    Config after it has been confirmed.
+                    Configuration after it has been confirmed.
                   </p>
                 </div>
               </div>
