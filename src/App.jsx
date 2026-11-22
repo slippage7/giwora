@@ -1043,7 +1043,7 @@ export default function App() {
             onClick={() => setPage('Registry')}
           >
             <span className="nav-symbol">◈</span>
-            Config registry
+            Config Registry
           </button>
 
           <button
@@ -1061,7 +1061,7 @@ export default function App() {
             onClick={() => setPage('Token Launch')}
           >
             <span className="nav-symbol">◇</span>
-            Token launch
+            Token Launch
           </button>
         </nav>
 
@@ -1104,7 +1104,7 @@ export default function App() {
                 onClick={connectWallet}
                 disabled={busy}
               >
-                Connect wallet ↗
+                Connect Wallet ↗
               </button>
             ) : correctNetwork ? (
               <button
