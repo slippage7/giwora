@@ -1174,7 +1174,7 @@ export default function App() {
                       className="outline-button"
                       onClick={() => setPage('Registry')}
                     >
-                      Explore registry
+                      Explore Registry
                     </button>
                   </div>
 
@@ -1214,7 +1214,7 @@ export default function App() {
                     WALLET <span>⌁</span>
                   </div>
                   <div className="stat-value stat-value-small">
-                    {connected ? 'Connected' : 'Not connected'}
+                    {connected ? 'Connected' : 'Not Connected'}
                   </div>
                   <div className="stat-caption">
                     {connected
