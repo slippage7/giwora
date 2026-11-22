@@ -1219,7 +1219,7 @@ export default function App() {
                   <div className="stat-caption">
                     {connected
                       ? shortAddress(account)
-                      : 'Connect MetaMask to continue'}
+                      : 'Connect your wallet to continue'}
                   </div>
                 </div>
 
