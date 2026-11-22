@@ -1,0 +1,9 @@
+{
+  "name": "GIWORA Test Token",
+  "symbol": "GWR",
+  "description": "A test token created through GIWORA, an independent token launchpad built with the Ammora SDK on GIWA Sepolia.",
+  "external_url": "https://giwora.vercel.app",
+  "network": "GIWA Sepolia",
+  "chain_id": 91342,
+  "configuration_id": "81"
+}
