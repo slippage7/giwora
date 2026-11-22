@@ -557,7 +557,7 @@ export default function App() {
       const configId = BigInt(id);
 
       if (configId < 1n) {
-        throw new Error('Config ID must be greater than zero.');
+        throw new Error('Configuration ID must be greater than zero.');
       }
 
       setBusy(true);
@@ -576,7 +576,7 @@ export default function App() {
 
       if (configId > total) {
         throw new Error(
-          `Config #${configId} does not exist. Current registry count: ${total}.`
+          `Configuration #${configId} does not exist. Current registry count: ${total}.`
         );
       }
 
@@ -623,7 +623,7 @@ export default function App() {
       );
 
       if (!template.enabled) {
-        throw new Error('Template Config #24 is disabled.');
+        throw new Error('Template Configuration #24 is disabled.');
       }
 
       if (
@@ -720,7 +720,7 @@ export default function App() {
       );
 
       if (!template.enabled) {
-        throw new Error('Template Config #24 is no longer enabled.');
+        throw new Error('Template Configuration #24 is no longer enabled.');
       }
 
       if (
@@ -845,7 +845,7 @@ export default function App() {
 
       setPreview(null);
       setConfigStatus('success');
-      setNotice(`GIWORA Config #${created.configId} created successfully.`);
+      setNotice(`GIWORA Configuration #${created.configId} created successfully.`);
     } catch (err) {
       setConfigStatus('error');
       setError(errorMessage(err));
@@ -1203,7 +1203,7 @@ export default function App() {
               <section className="stats-grid">
                 <div className="stat-card">
                   <div className="stat-label">
-                    REGISTRY CONFIGS <span>◈</span>
+                    REGISTRY CONFIGURATIONS <span>◈</span>
                   </div>
                   <div className="stat-value">{configCount || '—'}</div>
                   <div className="stat-caption">Registered on GIWA Sepolia</div>
@@ -1299,7 +1299,7 @@ export default function App() {
                   {readStatus === 'success' && (
                     <small>
                       BLOCK {blockNumber} · SHOWING UP TO 5 OF {configCount}{' '}
-                      CONFIGS
+                      CONFIGURATIONS
                     </small>
                   )}
                 </div>
@@ -1315,7 +1315,7 @@ export default function App() {
 
                     <div className="config-card-main">
                       <div className="config-card-title">
-                        <h3>Launch Config #{String(entry.configId)}</h3>
+                        <h3>Launch Configuration #{String(entry.configId)}</h3>
                         <span
                           className={
                             entry.enabled ? 'badge-enabled' : 'badge-disabled'
@@ -1348,7 +1348,7 @@ export default function App() {
                         onClick={() => inspectConfig(String(entry.configId))}
                         disabled={busy}
                       >
-                        Inspect full configuration <span>↗</span>
+                        Inspect Full Configuration <span>↗</span>
                       </button>
                     </div>
                   </article>
@@ -1358,7 +1358,7 @@ export default function App() {
               <div className="inspector-section">
                 <div className="section-heading">
                   <div>
-                    <div className="section-kicker">CONFIG INSPECTOR</div>
+                    <div className="section-kicker">CONFIGURATION INSPECTOR</div>
                     <h2>Inspect by ID</h2>
                     <p>Read the complete configuration and immutable hash.</p>
                   </div>
@@ -1370,7 +1370,7 @@ export default function App() {
                     min="1"
                     value={selectedId}
                     onChange={(event) => setSelectedId(event.target.value)}
-                    placeholder="Config ID"
+                    placeholder="Configuration ID"
                   />
                   <button
                     className="primary-button"
@@ -1385,8 +1385,8 @@ export default function App() {
                   <div className="selected-config">
                     <div className="selected-config-heading">
                       <div>
-                        <div className="section-kicker">INSPECTED CONFIG</div>
-                        <h3>Config #{String(selectedConfig.configId)}</h3>
+                        <div className="section-kicker">INSPECTED CONFIGURATION</div>
+                        <h3>Configuration #{String(selectedConfig.configId)}</h3>
                       </div>
                       <span
                         className={
@@ -1438,7 +1438,7 @@ export default function App() {
                     </div>
 
                     <div className="hash-row">
-                      <span>CONFIG HASH</span>
+                      <span>CONFIGURATION HASH</span>
                       <code>{selectedConfig.configHash}</code>
                     </div>
 
@@ -1470,7 +1470,7 @@ export default function App() {
 
                 <div className="selected-facts">
                   <div>
-                    <span>Config Owner</span>
+                    <span>Configuration Owner</span>
                     <strong>{connected ? shortAddress(account) : '—'}</strong>
                   </div>
                   <div>
@@ -1582,8 +1582,8 @@ export default function App() {
                   }
                 >
                   {busy && configStatus === 'preparing'
-                    ? 'Calculating Config...'
-                    : 'Prepare Config preview ↗'}
+                    ? 'Calculating Configuration...'
+                    : 'Prepare Configuration Preview ↗'}
                 </button>
               </div>
 
@@ -1592,7 +1592,7 @@ export default function App() {
                   <div className="selected-config-heading">
                     <div>
                       <div className="section-kicker">
-                        UNSIGNED CONFIG PREVIEW
+                        UNSIGNED CONFIGURATION PREVIEW
                       </div>
                       <h3>Ready for review</h3>
                     </div>
@@ -1636,13 +1636,13 @@ export default function App() {
                   <div className="review-note">
                     <strong>Recipient verification</strong>
                     <span>
-                      Config Owner, Partner Recipient, Liquidity Partner and
+                      Configuration Owner, Partner Recipient, Liquidity Partner and
                       Leftover Receiver are all set to {shortAddress(account)}.
                     </span>
                   </div>
 
                   <div className="json-heading">
-                    <strong>Calculated Config and economics</strong>
+                    <strong>Calculated Configuration and Economics</strong>
                     <button
                       className="text-button"
                       onClick={() =>
@@ -1666,7 +1666,7 @@ export default function App() {
                   >
                     {busy && configStatus === 'creating'
                       ? 'Waiting for MetaMask...'
-                      : 'Create GIWORA Config in MetaMask ↗'}
+                      : 'Create GIWORA Configuration in MetaMask ↗'}
                   </button>
 
                   <p
@@ -1680,7 +1680,7 @@ export default function App() {
                     This sends a transaction to the GIWA Sepolia Config
                     Registry. Review the exact network, target and gas in
                     MetaMask before approving. The transaction creates a new
-                    immutable Config; it does not create a token.
+                    immutable Configuration; it does not create a token.
                   </p>
                 </div>
               )}
@@ -1690,7 +1690,7 @@ export default function App() {
                   <div className="selected-config-heading">
                     <div>
                       <div className="section-kicker">ON-CHAIN SUCCESS</div>
-                      <h3>GIWORA Config #{createdConfig.configId}</h3>
+                      <h3>GIWORA Configuration #{createdConfig.configId}</h3>
                     </div>
                     <span className="badge-enabled">
                       <i></i> CONFIRMED
@@ -1699,7 +1699,7 @@ export default function App() {
 
                   <div className="selected-facts">
                     <div>
-                      <span>Config ID</span>
+                      <span>Configuration ID</span>
                       <strong>#{createdConfig.configId}</strong>
                     </div>
                     <div>
@@ -1717,7 +1717,7 @@ export default function App() {
                   </div>
 
                   <div className="hash-row">
-                    <span>CONFIRMED CONFIG HASH</span>
+                    <span>CONFIRMED CONFIGURATION HASH</span>
                     <code>{createdConfig.configHash}</code>
                   </div>
 
@@ -1738,7 +1738,7 @@ export default function App() {
 
               {configStatus === 'error' && (
                 <div className="review-note" style={{ marginTop: 14 }}>
-                  <strong>Config creation stopped</strong>
+                  <strong>Configuration Creation Stopped</strong>
                   <span>{error}</span>
                 </div>
               )}
@@ -1750,7 +1750,7 @@ export default function App() {
               <div className="section-heading">
                 <div>
                   <div className="section-kicker">GIWORA / TOKEN LAUNCH</div>
-                  <h2>Launch a Token with Your Config</h2>
+                  <h2>Launch a Token with Your Configuration</h2>
                   <p>
                     Create a token and its Ammora Launch Curve using your own GIWORA
                     Config after it has been confirmed.
@@ -1762,9 +1762,9 @@ export default function App() {
                 <div className="read-status-panel">
                   <div className="read-status-icon">!</div>
                   <div className="read-status-copy">
-                    <strong>No GIWORA Config has been created yet.</strong>
+                    <strong>No GIWORA Configuration has been created yet.</strong>
                     <span>
-                      Create and confirm your own GIWORA Config in Config Studio first.
+                      Create and confirm your own GIWORA Configuration in Config Studio first.
                       Token launches can only use configurations you created and confirmed.
                     </span>
                     <button
@@ -1777,9 +1777,9 @@ export default function App() {
                 </div>
               ) : (
                 <div className="selected-config">
-                  <div className="section-kicker">CONFIRMED GIWORA CONFIG</div>
+                  <div className="section-kicker">CONFIRMED GIWORA CONFIGURATION</div>
                   <h3 style={{ marginTop: 8 }}>
-                    Config #{createdConfig.configId}
+                    Configuration #{createdConfig.configId}
                   </h3>
                   <p style={{ color: '#938895', fontSize: 10 }}>
                     {createdConfig.configHash}
