@@ -140,6 +140,7 @@ input:disabled {
 }
 
 .brand-mark {
+  position: relative;
   display: grid;
   place-items: center;
   width: 34px;
@@ -401,6 +402,7 @@ input:disabled {
 
 .hero {
   position: relative;
+  isolation: isolate;
   display: grid;
   grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
   align-items: center;
@@ -1255,6 +1257,7 @@ input:disabled {
 
 .cta {
   position: relative;
+  isolation: isolate;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1282,12 +1285,8 @@ input:disabled {
   font-size: 14px;
 }
 
-.cta-mark {
-  color: var(--accent);
-  font: 800 clamp(80px, 12vw, 140px) / 0.8 var(--font-display);
-  letter-spacing: -0.08em;
-  opacity: 0.9;
-  user-select: none;
+.cta-copy {
+  position: relative;
 }
 
 .footer {
@@ -1359,6 +1358,326 @@ input:disabled {
   }
 }
 
+/* ---------- Orbit emblem & sky ---------- */
+
+.hero-visual {
+  position: relative;
+}
+
+.visual-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* faint star field behind a section */
+
+.sky {
+  position: absolute;
+  z-index: -1;
+  inset: -16px calc(var(--gutter) * -1) 0;
+  overflow: hidden;
+  pointer-events: none;
+  -webkit-mask-image: radial-gradient(ellipse 80% 90% at 70% 40%, #000 25%, transparent 78%);
+  mask-image: radial-gradient(ellipse 80% 90% at 70% 40%, #000 25%, transparent 78%);
+}
+
+.sky.in-card {
+  inset: 0;
+  -webkit-mask-image: radial-gradient(ellipse 70% 120% at 85% 50%, #000 20%, transparent 80%);
+  mask-image: radial-gradient(ellipse 70% 120% at 85% 50%, #000 20%, transparent 80%);
+}
+
+.sky::before,
+.sky::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
+.sky::before {
+  background-image:
+    radial-gradient(1px 1px at 8% 18%, rgba(255, 255, 255, 0.7) 50%, transparent 52%),
+    radial-gradient(1px 1px at 22% 64%, rgba(255, 255, 255, 0.45) 50%, transparent 52%),
+    radial-gradient(1.5px 1.5px at 34% 30%, rgba(255, 149, 71, 0.8) 50%, transparent 52%),
+    radial-gradient(1px 1px at 47% 82%, rgba(255, 255, 255, 0.55) 50%, transparent 52%),
+    radial-gradient(1px 1px at 58% 14%, rgba(255, 255, 255, 0.6) 50%, transparent 52%),
+    radial-gradient(1.5px 1.5px at 69% 58%, rgba(255, 255, 255, 0.5) 50%, transparent 52%),
+    radial-gradient(1px 1px at 81% 24%, rgba(255, 149, 71, 0.7) 50%, transparent 52%),
+    radial-gradient(1px 1px at 90% 74%, rgba(255, 255, 255, 0.6) 50%, transparent 52%),
+    radial-gradient(1px 1px at 96% 40%, rgba(255, 255, 255, 0.45) 50%, transparent 52%);
+}
+
+.sky::after {
+  background-image:
+    radial-gradient(1.5px 1.5px at 14% 40%, rgba(255, 255, 255, 0.85) 50%, transparent 52%),
+    radial-gradient(1px 1px at 28% 90%, rgba(255, 149, 71, 0.8) 50%, transparent 52%),
+    radial-gradient(1.5px 1.5px at 41% 12%, rgba(255, 255, 255, 0.8) 50%, transparent 52%),
+    radial-gradient(1px 1px at 53% 52%, rgba(255, 255, 255, 0.6) 50%, transparent 52%),
+    radial-gradient(1.5px 1.5px at 64% 88%, rgba(255, 149, 71, 0.8) 50%, transparent 52%),
+    radial-gradient(1px 1px at 76% 8%, rgba(255, 255, 255, 0.8) 50%, transparent 52%),
+    radial-gradient(1.5px 1.5px at 87% 48%, rgba(255, 255, 255, 0.75) 50%, transparent 52%),
+    radial-gradient(1px 1px at 93% 92%, rgba(255, 255, 255, 0.6) 50%, transparent 52%);
+  animation: sky-twinkle 5.5s ease-in-out infinite;
+}
+
+/* clipped stage so rings only peek out around the hero card */
+
+.orbit-stage {
+  position: absolute;
+  z-index: -1;
+  inset: -70px -14px;
+  overflow: hidden;
+  pointer-events: none;
+  -webkit-mask-image: radial-gradient(ellipse 72% 72% at 50% 50%, #000 52%, transparent 100%);
+  mask-image: radial-gradient(ellipse 72% 72% at 50% 50%, #000 52%, transparent 100%);
+}
+
+/* the "G in orbit" emblem */
+
+.orbit {
+  --orbit-size: 240px;
+  position: relative;
+  flex: none;
+  width: var(--orbit-size);
+  height: var(--orbit-size);
+  pointer-events: none;
+  user-select: none;
+}
+
+.orbit-glow {
+  position: absolute;
+  inset: 24%;
+  border-radius: 50%;
+  background: rgba(255, 122, 26, 0.26);
+  filter: blur(calc(var(--orbit-size) * 0.11));
+  animation: orbit-breathe 5s ease-in-out infinite;
+}
+
+.orbit-ring {
+  position: absolute;
+  border: 1px solid var(--accent-line);
+  border-radius: 50%;
+  animation: orbit-spin 24s linear infinite;
+}
+
+.ring-outer {
+  inset: 0;
+  border-color: rgba(255, 122, 26, 0.16);
+  animation-duration: 64s;
+}
+
+.ring-mid {
+  inset: 11%;
+  border-style: dashed;
+  border-color: rgba(255, 149, 71, 0.3);
+  animation-duration: 44s;
+  animation-direction: reverse;
+}
+
+.ring-inner {
+  inset: 23%;
+  border-color: rgba(255, 122, 26, 0.42);
+}
+
+.orbit-planet {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: max(5px, calc(var(--orbit-size) * 0.05));
+  aspect-ratio: 1;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--accent-hi);
+  box-shadow: 0 0 calc(var(--orbit-size) * 0.06) rgba(255, 149, 71, 0.75);
+}
+
+.planet-lg {
+  width: max(6px, calc(var(--orbit-size) * 0.065));
+  background: linear-gradient(145deg, #ffd2a7, var(--accent));
+}
+
+.planet-sm {
+  width: max(4px, calc(var(--orbit-size) * 0.035));
+  background: var(--text-soft);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.35);
+}
+
+.planet-hollow {
+  background: var(--bg);
+  border: 2px solid var(--accent-hi);
+  box-shadow: none;
+}
+
+.orbit-core {
+  position: absolute;
+  inset: 33%;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 194, 142, 0.7);
+  border-radius: 28%;
+  background: linear-gradient(145deg, #ffd2a7, var(--accent));
+  box-shadow:
+    0 0 calc(var(--orbit-size) * 0.18) rgba(255, 122, 26, 0.38),
+    inset 0 1px 1px rgba(255, 255, 255, 0.5);
+  transform: rotate(-12deg);
+  animation: orbit-float 6s ease-in-out infinite;
+}
+
+.orbit-core b {
+  color: var(--accent-ink);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: calc(var(--orbit-size) * 0.21);
+  line-height: 1;
+  transform: rotate(12deg);
+}
+
+.orbit-spark {
+  position: absolute;
+  width: max(6px, calc(var(--orbit-size) * 0.075));
+  aspect-ratio: 1;
+  background: var(--accent-hi);
+  clip-path: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%);
+  animation: orbit-twinkle 3.6s ease-in-out infinite;
+}
+
+.spark-a {
+  top: 6%;
+  right: 17%;
+}
+
+.spark-b {
+  bottom: 9%;
+  left: 12%;
+  width: max(7px, calc(var(--orbit-size) * 0.095));
+  animation-delay: -1.2s;
+}
+
+.spark-c {
+  top: 47%;
+  left: 0;
+  width: max(5px, calc(var(--orbit-size) * 0.05));
+  background: var(--text-soft);
+  animation-delay: -2.2s;
+}
+
+/* placements (declared after .orbit so they win the cascade) */
+
+.orbit-backdrop {
+  --orbit-size: clamp(420px, 46vw, 600px);
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.orbit-backdrop .ring-outer {
+  border-color: rgba(255, 122, 26, 0.3);
+}
+
+.orbit-backdrop .ring-mid {
+  border-color: rgba(255, 149, 71, 0.4);
+}
+
+.orbit-backdrop .orbit-glow,
+.orbit-backdrop .orbit-spark {
+  display: none;
+}
+
+.orbit-lg {
+  --orbit-size: clamp(170px, 20vw, 236px);
+  margin-right: clamp(0px, 2vw, 20px);
+}
+
+.orbit-mini {
+  --orbit-size: 46px;
+}
+
+.orbit-mini .orbit-glow,
+.orbit-mini .orbit-spark,
+.orbit-mini .ring-outer {
+  display: none;
+}
+
+.orbit-mini .ring-mid {
+  inset: 0;
+}
+
+.orbit-mini .ring-inner {
+  inset: 13%;
+}
+
+.orbit-mini .orbit-core {
+  inset: 28%;
+  border-radius: 32%;
+  box-shadow: 0 0 10px rgba(255, 122, 26, 0.4);
+}
+
+.orbit-mini .orbit-core b {
+  font-size: calc(var(--orbit-size) * 0.27);
+}
+
+/* header brand: slim ring with a tiny orbiting dot */
+
+.brand-mark::before {
+  content: '';
+  position: absolute;
+  inset: -7px;
+  border: 1px dashed var(--accent-line);
+  border-radius: 50%;
+  background: radial-gradient(circle 2.4px at 50% 1px, var(--accent-hi) 96%, transparent);
+  animation: orbit-spin 14s linear infinite;
+}
+
+@keyframes orbit-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes orbit-breathe {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes orbit-float {
+  0%,
+  100% {
+    transform: rotate(-12deg) translateY(0);
+  }
+  50% {
+    transform: rotate(-12deg) translateY(-4%);
+  }
+}
+
+@keyframes orbit-twinkle {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scale(0.75);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes sky-twinkle {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
 /* ---------- Responsive ---------- */
 
 @media (max-width: 980px) {
@@ -1368,6 +1687,15 @@ input:disabled {
 
   .hero-visual {
     max-width: 560px;
+  }
+
+  /* single column: keep the rings close to the card so they never touch the text above */
+  .orbit-stage {
+    inset: -20px -14px;
+  }
+
+  .orbit-backdrop {
+    --orbit-size: 400px;
   }
 
   .studio {
@@ -1447,8 +1775,14 @@ input:disabled {
     padding-right: 14px;
   }
 
-  .cta-mark {
-    display: none;
+  .cta {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .orbit-lg {
+    --orbit-size: 168px;
+    align-self: center;
   }
 }
 
@@ -1509,7 +1843,13 @@ input:disabled {
   }
 
   .curve-node-ring,
-  .toast {
+  .toast,
+  .orbit-ring,
+  .orbit-glow,
+  .orbit-core,
+  .orbit-spark,
+  .sky::after,
+  .brand-mark::before {
     animation: none;
   }
 

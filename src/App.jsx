@@ -338,6 +338,38 @@ function BondingCurve() {
   );
 }
 
+/**
+ * Decorative "G in orbit" emblem. Size is controlled from CSS through the
+ * --orbit-size custom property, so one component serves every placement.
+ */
+function OrbitEmblem({ className = '', core = true }) {
+  return (
+    <div className={`orbit ${className}`.trim()} aria-hidden="true">
+      <span className="orbit-glow"></span>
+
+      <span className="orbit-ring ring-outer">
+        <i className="orbit-planet planet-sm"></i>
+      </span>
+      <span className="orbit-ring ring-mid">
+        <i className="orbit-planet planet-hollow"></i>
+      </span>
+      <span className="orbit-ring ring-inner">
+        <i className="orbit-planet planet-lg"></i>
+      </span>
+
+      <span className="orbit-spark spark-a"></span>
+      <span className="orbit-spark spark-b"></span>
+      <span className="orbit-spark spark-c"></span>
+
+      {core && (
+        <span className="orbit-core">
+          <b>G</b>
+        </span>
+      )}
+    </div>
+  );
+}
+
 export default function App() {
   const [page, setPage] = useState('Overview');
 
@@ -1125,7 +1157,7 @@ export default function App() {
                 onClick={connectWallet}
                 disabled={busy}
               >
-                Connect wallet <span aria-hidden="true">↗</span>
+                Connect Wallet <span aria-hidden="true">↗</span>
               </button>
             ) : correctNetwork ? (
               <button
@@ -1166,6 +1198,8 @@ export default function App() {
         {page === 'Overview' && (
           <>
             <section className="hero">
+              <div className="sky" aria-hidden="true"></div>
+
               <div className="hero-copy">
                 <div className="eyebrow">
                   <span className="eyebrow-line"></span>
@@ -1208,9 +1242,16 @@ export default function App() {
               </div>
 
               <div className="hero-visual">
+                <div className="orbit-stage" aria-hidden="true">
+                  <OrbitEmblem className="orbit-backdrop" core={false} />
+                </div>
+
                 <div className="visual-card">
                   <div className="visual-top">
-                    <span className="mono-label">Launch curve</span>
+                    <span className="visual-title">
+                      <OrbitEmblem className="orbit-mini" />
+                      <span className="mono-label">Launch curve</span>
+                    </span>
                     <span className="chip ok">
                       <span className="dot"></span>
                       Testnet
@@ -1922,14 +1963,15 @@ export default function App() {
         )}
 
         <section className="cta">
-          <div>
+          <div className="sky in-card" aria-hidden="true"></div>
+
+          <div className="cta-copy">
             <div className="mono-label accent">GIWORA launchpad</div>
             <h2>Build the next project on GIWA.</h2>
             <p>Independent project. Built with Ammora SDK.</p>
           </div>
-          <div className="cta-mark" aria-hidden="true">
-            G.
-          </div>
+
+          <OrbitEmblem className="orbit-lg" />
         </section>
       </main>
 
