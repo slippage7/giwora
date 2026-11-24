@@ -282,6 +282,62 @@ function amount(value, decimals, label) {
   return parsed;
 }
 
+const NAV_ITEMS = [
+  { id: 'Overview', label: 'Overview' },
+  { id: 'Registry', label: 'Registry' },
+  { id: 'Config Studio', label: 'Config Studio' },
+  { id: 'Token Launch', label: 'Token Launch' },
+];
+
+function BondingCurve() {
+  return (
+    <svg
+      className="curve-svg"
+      viewBox="0 0 480 340"
+      role="presentation"
+      aria-hidden="true"
+    >
+      <defs>
+        <linearGradient id="gw-area" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="var(--accent)" stopOpacity="0.32" />
+          <stop offset="100%" stopColor="var(--accent)" stopOpacity="0" />
+        </linearGradient>
+      </defs>
+
+      <g className="curve-grid">
+        {[60, 120, 180, 240, 300].map((y) => (
+          <line key={`h${y}`} x1="24" x2="456" y1={y} y2={y} />
+        ))}
+        {[96, 168, 240, 312, 384].map((x) => (
+          <line key={`v${x}`} y1="24" y2="312" x1={x} x2={x} />
+        ))}
+      </g>
+
+      <path
+        className="curve-area"
+        d="M24 308 C 150 304, 240 276, 300 202 S 410 70, 456 36 L 456 312 L 24 312 Z"
+        fill="url(#gw-area)"
+      />
+      <path
+        className="curve-line"
+        d="M24 308 C 150 304, 240 276, 300 202 S 410 70, 456 36"
+      />
+
+      <line className="curve-threshold" x1="300" x2="300" y1="24" y2="312" />
+      <circle className="curve-node-ring" cx="300" cy="202" r="13" />
+      <circle className="curve-node" cx="300" cy="202" r="5.5" />
+      <circle className="curve-start" cx="24" cy="308" r="4" />
+
+      <text className="curve-label" x="312" y="44">
+        GRADUATION
+      </text>
+      <text className="curve-label dim" x="30" y="296">
+        SALE CURVE
+      </text>
+    </svg>
+  );
+}
+
 export default function App() {
   const [page, setPage] = useState('Overview');
 
@@ -1014,942 +1070,888 @@ export default function App() {
       })
     : '';
 
+  const studioStep = createdConfig ? 3 : preview ? 2 : 1;
+
+  const networkLabel = correctNetwork
+    ? 'GIWA connected'
+    : connected
+    ? 'Wrong network'
+    : 'GIWA testnet';
+
+  const roleRows = [
+    ['Configuration owner', account],
+    ['Partner recipient', account],
+    ['Liquidity partner', account],
+    ['Leftover receiver', account],
+  ];
+
   return (
-    <div className="app-shell">
-      <aside className="sidebar">
-        <div className="brand">
-          <div className="brand-mark">G</div>
-          <div>
-            <div className="brand-name">
-              GIWORA<span>.</span>
-            </div>
-            <div className="brand-subtitle">TOKEN LAUNCH PLATFORM</div>
-          </div>
-        </div>
-
-        <div className="sidebar-section-label">WORKSPACE</div>
-
-        <nav className="sidebar-nav">
+    <div className="site">
+      <header className="header">
+        <div className="header-inner">
           <button
-            className={page === 'Overview' ? 'nav-item active' : 'nav-item'}
+            className="brand"
             onClick={() => setPage('Overview')}
+            aria-label="GIWORA home"
           >
-            <span className="nav-symbol">◫</span>
-            Overview
+            <span className="brand-mark">G</span>
+            <span className="brand-name">
+              GIWORA<i>.</i>
+            </span>
           </button>
 
-          <button
-            className={page === 'Registry' ? 'nav-item active' : 'nav-item'}
-            onClick={() => setPage('Registry')}
-          >
-            <span className="nav-symbol">◈</span>
-            Configuration Registry
-          </button>
+          <nav className="nav" aria-label="Workspace">
+            {NAV_ITEMS.map((item, index) => (
+              <button
+                key={item.id}
+                className={page === item.id ? 'nav-tab active' : 'nav-tab'}
+                onClick={() => setPage(item.id)}
+              >
+                <small>{String(index + 1).padStart(2, '0')}</small>
+                {item.label}
+              </button>
+            ))}
+          </nav>
 
-          <button
-            className={
-              page === 'Config Studio' ? 'nav-item active' : 'nav-item'
-            }
-            onClick={() => setPage('Config Studio')}
-          >
-            <span className="nav-symbol">＋</span>
-            Configuration Studio
-          </button>
-
-          <button
-            className={page === 'Token Launch' ? 'nav-item active' : 'nav-item'}
-            onClick={() => setPage('Token Launch')}
-          >
-            <span className="nav-symbol">◇</span>
-            Token Launch
-          </button>
-        </nav>
-
-        <div className="sidebar-bottom">
-          <div className="network-card">
-            <div className="network-card-top">
-              <span className="status-dot"></span>
-              TEST NETWORK
-            </div>
-            <strong>GIWA Sepolia</strong>
-            <span className="network-id">Chain ID · 91342</span>
-          </div>
-
-          <div className="sidebar-footer">INDEPENDENT WEB3 PROJECT</div>
-        </div>
-      </aside>
-
-      <main className="main-area">
-        <header className="topbar">
-          <div>
-            <div className="topbar-kicker">GIWORA WORKSPACE</div>
-            <div className="breadcrumb">{page}</div>
-          </div>
-
-          <div className="topbar-actions">
-            <div className="network-indicator">
-              <span
-                className={correctNetwork ? 'status-dot' : 'status-dot muted'}
-              ></span>
-              {correctNetwork
-                ? 'GIWA CONNECTED'
-                : connected
-                ? 'WRONG NETWORK'
-                : 'GIWA TESTNET'}
+          <div className="header-actions">
+            <div className={correctNetwork ? 'chip ok' : 'chip'}>
+              <span className="dot"></span>
+              {networkLabel}
             </div>
 
             {!connected ? (
               <button
-                className="wallet-button"
+                className="btn btn-primary"
                 onClick={connectWallet}
                 disabled={busy}
               >
-                Connect Wallet ↗
+                Connect wallet <span aria-hidden="true">↗</span>
               </button>
             ) : correctNetwork ? (
               <button
-                className="wallet-button connected"
+                className="btn btn-wallet"
                 onClick={() => setNotice(account)}
                 title={account}
               >
-                <span className="status-dot"></span>
+                <span className="dot"></span>
                 {shortAddress(account)}
               </button>
             ) : (
               <button
-                className="wallet-button"
+                className="btn btn-primary"
                 onClick={switchNetwork}
                 disabled={busy}
               >
-                Switch network ↗
+                Switch network <span aria-hidden="true">↗</span>
               </button>
             )}
           </div>
-        </header>
+        </div>
+      </header>
 
-        <div className="content">
-          {error && (
-            <div className="read-status-panel" style={{ marginBottom: 16 }}>
-              <div className="read-status-icon">!</div>
-              <div className="read-status-copy">
-                <strong>Something needs attention</strong>
-                <span className="error-text">{error}</span>
-                <button className="text-button" onClick={() => setError('')}>
-                  Dismiss
-                </button>
-              </div>
+      <main className="main">
+        {error && (
+          <div className="alert" role="alert">
+            <div className="alert-icon">!</div>
+            <div className="alert-copy">
+              <strong>Something needs attention</strong>
+              <span>{error}</span>
             </div>
-          )}
+            <button className="link-btn" onClick={() => setError('')}>
+              Dismiss
+            </button>
+          </div>
+        )}
 
-          {page === 'Overview' && (
-            <>
-              <section className="hero">
-                <div className="hero-copy">
-                  <div className="eyebrow">
-                    <span></span>
-                    TOKEN LAUNCH PLATFORM
-                  </div>
-
-                  <h1>
-                    Make your next
-                    <br />
-                    <em>launch happen.</em>
-                  </h1>
-
-                  <p>
-                    A focused launchpad for the GIWA ecosystem. Create your own
-                    launch configuration and issue tokens using Ammora
-                    infrastructure.
-                  </p>
-
-                  <div className="hero-buttons">
-                    <button
-                      className="primary-button"
-                      onClick={() => setPage('Config Studio')}
-                    >
-                      Build GIWORA Configuration <span>↗</span>
-                    </button>
-
-                    <button
-                      className="outline-button"
-                      onClick={() => setPage('Registry')}
-                    >
-                      Explore Registry
-                    </button>
-                  </div>
-
-                  <div className="hero-footnote">
-                    <span>BUILT ON GIWA</span>
-                    <i></i>
-                    <span>POWERED BY AMMORA SDK</span>
-                  </div>
+        {page === 'Overview' && (
+          <>
+            <section className="hero">
+              <div className="hero-copy">
+                <div className="eyebrow">
+                  <span className="eyebrow-line"></span>
+                  Token launch platform
                 </div>
 
-                <div className="hero-visual" aria-hidden="true">
-                  <div className="visual-ring ring-a"></div>
-                  <div className="visual-ring ring-b"></div>
-                  <div className="visual-ring ring-c"></div>
-                  <div className="visual-glow"></div>
-                  <div className="visual-core">
-                    <span>G</span>
-                  </div>
-                  <div className="visual-orbit-dot dot-a"></div>
-                  <div className="visual-orbit-dot dot-b"></div>
-                  <div className="visual-cross cross-a">✳</div>
-                  <div className="visual-cross cross-b">✦</div>
-                </div>
-              </section>
+                <h1>
+                  Make your next
+                  <br />
+                  <em>launch happen.</em>
+                </h1>
 
-              <section className="stats-grid">
-                <div className="stat-card">
-                  <div className="stat-label">
-                    REGISTRY CONFIGURATIONS <span>◈</span>
-                  </div>
-                  <div className="stat-value">{configCount || '—'}</div>
-                  <div className="stat-caption">Registered on GIWA Sepolia</div>
-                </div>
+                <p className="lead">
+                  A focused launchpad for the GIWA ecosystem. Create your own
+                  launch configuration and issue tokens using Ammora
+                  infrastructure.
+                </p>
 
-                <div className="stat-card">
-                  <div className="stat-label">
-                    WALLET <span>⌁</span>
-                  </div>
-                  <div className="stat-value stat-value-small">
-                    {connected ? 'Connected' : 'Not Connected'}
-                  </div>
-                  <div className="stat-caption">
-                    {connected
-                      ? shortAddress(account)
-                      : 'Connect your wallet to continue'}
-                  </div>
-                </div>
-
-                <div className="stat-card">
-                  <div className="stat-label">
-                    SDK DEPLOYMENT <span>◇</span>
-                  </div>
-                  <div className="stat-value stat-value-small">
-                    {sdkReady ? 'V4 · GIWA' : 'Unavailable'}
-                  </div>
-                  <div className="stat-caption">
-                    Auto-Route deployment catalog
-                  </div>
-                </div>
-              </section>
-
-              <section className="homepage-quick-links">
-                <span className="homepage-quick-links-label">GIWA TESTNET TOOLS</span>
-                <a href="https://faucet.giwa.io/" target="_blank" rel="noopener noreferrer">
-                  GIWA Faucet <span>↗</span>
-                </a>
-                <span className="homepage-quick-links-divider"></span>
-                <a href="https://sepolia-bridge.giwa.io/" target="_blank" rel="noopener noreferrer">
-                  GIWA Bridge <span>↗</span>
-                </a>
-              </section>
-
-              <section className="registry-section">
-                <div className="section-heading">
-                  <div>
-                    <div className="section-kicker">GET STARTED</div>
-                    <h2>Build Your Own Launch Configuration</h2>
-                    <p>
-                      GIWORA uses a reviewed Ammora template and assigns all
-                      team roles to your connected wallet.
-                    </p>
-                  </div>
-
+                <div className="btn-row">
                   <button
-                    className="primary-button"
+                    className="btn btn-primary btn-lg"
                     onClick={() => setPage('Config Studio')}
                   >
-                    Open Configuration Studio ↗
+                    Build GIWORA Configuration <span aria-hidden="true">↗</span>
+                  </button>
+
+                  <button
+                    className="btn btn-ghost btn-lg"
+                    onClick={() => setPage('Registry')}
+                  >
+                    Explore Registry
                   </button>
                 </div>
-              </section>
-            </>
-          )}
 
-          {page === 'Registry' && (
-            <section className="registry-section" style={{ marginTop: 0 }}>
-              <div className="section-heading">
+                <div className="hero-foot">
+                  <span>Built on GIWA</span>
+                  <i></i>
+                  <span>Powered by Ammora SDK</span>
+                </div>
+              </div>
+
+              <div className="hero-visual">
+                <div className="visual-card">
+                  <div className="visual-top">
+                    <span className="mono-label">Launch curve</span>
+                    <span className="chip ok">
+                      <span className="dot"></span>
+                      Testnet
+                    </span>
+                  </div>
+
+                  <BondingCurve />
+
+                  <div className="visual-meta">
+                    <div>
+                      <span>Template</span>
+                      <strong>#24</strong>
+                    </div>
+                    <div>
+                      <span>Chain ID</span>
+                      <strong>91342</strong>
+                    </div>
+                    <div>
+                      <span>Graduation</span>
+                      <strong>Concentrated</strong>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section className="stats">
+              <div className="stat">
+                <div className="stat-label">Registry configurations</div>
+                <div className="stat-value">{configCount || '—'}</div>
+                <div className="stat-caption">Registered on GIWA Sepolia</div>
+              </div>
+
+              <div className="stat">
+                <div className="stat-label">Wallet</div>
+                <div className="stat-value sm">
+                  {connected ? 'Connected' : 'Not connected'}
+                </div>
+                <div className="stat-caption">
+                  {connected
+                    ? shortAddress(account)
+                    : 'Connect your wallet to continue'}
+                </div>
+              </div>
+
+              <div className="stat">
+                <div className="stat-label">SDK deployment</div>
+                <div className="stat-value sm">
+                  {sdkReady ? 'V4 · GIWA' : 'Unavailable'}
+                </div>
+                <div className="stat-caption">Auto-Route deployment catalog</div>
+              </div>
+            </section>
+
+            <section className="section">
+              <div className="section-head">
                 <div>
-                  <div className="section-kicker">ON-CHAIN DATA</div>
-                  <h2>Launch Configurations</h2>
-                  <p>Read the GIWA V4 registry directly from the blockchain.</p>
+                  <div className="mono-label accent">Get started</div>
+                  <h2>Build Your Own Launch Configuration</h2>
+                  <p>
+                    GIWORA uses a reviewed Ammora template and assigns all team
+                    roles to your connected wallet.
+                  </p>
                 </div>
 
                 <button
-                  className="primary-button"
-                  onClick={readRegistry}
-                  disabled={busy || !connected || !correctNetwork}
+                  className="btn btn-primary"
+                  onClick={() => setPage('Config Studio')}
                 >
-                  {busy ? 'Reading...' : 'Read Registry ↻'}
+                  Open Configuration Studio <span aria-hidden="true">↗</span>
                 </button>
               </div>
 
-              <div className="read-status-panel">
-                <div className="read-status-icon">
-                  {readStatus === 'success'
-                    ? '✓'
-                    : readStatus === 'error'
-                    ? '!'
-                    : '◈'}
-                </div>
-                <div className="read-status-copy">
-                  <strong>
-                    {readStatus === 'idle' && 'Ready to Inspect Registry'}
-                    {readStatus === 'loading' && 'Reading GIWA Sepolia...'}
-                    {readStatus === 'reading' && 'Reading Configuration Entries...'}
-                    {readStatus === 'success' &&
-                      'On-chain registry read complete'}
-                    {readStatus === 'error' && 'Registry read failed'}
-                  </strong>
-                  <span>
-                    Read-only operation. No wallet signature or funds are required.
-                  </span>
-                  {readStatus === 'success' && (
-                    <small>
-                      BLOCK {blockNumber} · SHOWING UP TO 5 OF {configCount}{' '}
-                      CONFIGURATIONS
-                    </small>
-                  )}
-                </div>
+              <div className="steps">
+                <button className="step" onClick={() => setPage('Config Studio')}>
+                  <span className="step-num">01</span>
+                  <strong>Configure</strong>
+                  <p>
+                    Set your sale allocation and graduation target on top of
+                    Template #24.
+                  </p>
+                </button>
+
+                <button className="step" onClick={() => setPage('Config Studio')}>
+                  <span className="step-num">02</span>
+                  <strong>Review</strong>
+                  <p>
+                    Inspect the calculated curve, economics and review hash
+                    before you sign anything.
+                  </p>
+                </button>
+
+                <button className="step" onClick={() => setPage('Token Launch')}>
+                  <span className="step-num">03</span>
+                  <strong>Launch</strong>
+                  <p>
+                    Create your token and its Ammora launch curve from your
+                    confirmed configuration.
+                  </p>
+                </button>
+              </div>
+            </section>
+
+            <section className="tools">
+              <span className="mono-label">GIWA testnet tools</span>
+              <div className="tools-links">
+                <a
+                  href="https://faucet.giwa.io/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  GIWA Faucet <span aria-hidden="true">↗</span>
+                </a>
+                <a
+                  href="https://sepolia-bridge.giwa.io/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  GIWA Bridge <span aria-hidden="true">↗</span>
+                </a>
+              </div>
+            </section>
+          </>
+        )}
+
+        {page === 'Registry' && (
+          <section className="page">
+            <div className="page-head">
+              <div>
+                <div className="mono-label accent">On-chain data</div>
+                <h2>Launch Configurations</h2>
+                <p>Read the GIWA V4 registry directly from the blockchain.</p>
               </div>
 
-              <div className="config-list">
-                {configs.map((entry) => (
-                  <article className="config-card" key={String(entry.configId)}>
-                    <div className="config-card-number">
-                      <span>CONFIGURATION</span>
-                      <strong>#{String(entry.configId)}</strong>
-                    </div>
+              <button
+                className="btn btn-primary"
+                onClick={readRegistry}
+                disabled={busy || !connected || !correctNetwork}
+              >
+                {busy ? 'Reading...' : 'Read Registry'}{' '}
+                <span aria-hidden="true">↻</span>
+              </button>
+            </div>
 
-                    <div className="config-card-main">
-                      <div className="config-card-title">
-                        <h3>Launch Configuration #{String(entry.configId)}</h3>
-                        <span
-                          className={
-                            entry.enabled ? 'badge-enabled' : 'badge-disabled'
-                          }
-                        >
-                          <i></i>
-                          {entry.enabled ? 'ENABLED' : 'DISABLED'}
-                        </span>
-                      </div>
-
-                      <div className="config-facts">
-                        <span>
-                          Owner <b>{shortAddress(entry.identity?.owner)}</b>
-                        </span>
-                        <span>
-                          Quote token{' '}
-                          <b>{shortAddress(entry.config?.quoteToken)}</b>
-                        </span>
-                        <span>
-                          Migration mode{' '}
-                          <b>{String(entry.config?.migrationMode ?? '—')}</b>
-                        </span>
-                        <span>
-                          Segments <b>{entry.segments?.length ?? 0}</b>
-                        </span>
-                      </div>
-
-                      <button
-                        className="text-button"
-                        onClick={() => inspectConfig(String(entry.configId))}
-                        disabled={busy}
-                      >
-                        Inspect Full Configuration <span>↗</span>
-                      </button>
-                    </div>
-                  </article>
-                ))}
+            <div
+              className={
+                readStatus === 'error'
+                  ? 'status-panel is-error'
+                  : readStatus === 'success'
+                  ? 'status-panel is-ok'
+                  : 'status-panel'
+              }
+            >
+              <div className="status-icon">
+                {readStatus === 'success'
+                  ? '✓'
+                  : readStatus === 'error'
+                  ? '!'
+                  : '◈'}
               </div>
+              <div className="status-copy">
+                <strong>
+                  {readStatus === 'idle' && 'Ready to inspect registry'}
+                  {readStatus === 'loading' && 'Reading GIWA Sepolia...'}
+                  {readStatus === 'reading' &&
+                    'Reading configuration entries...'}
+                  {readStatus === 'success' && 'On-chain registry read complete'}
+                  {readStatus === 'error' && 'Registry read failed'}
+                </strong>
+                <span>
+                  Read-only operation. No wallet signature or funds are required.
+                </span>
+                {readStatus === 'success' && (
+                  <small>
+                    Block {blockNumber} · showing up to 5 of {configCount}{' '}
+                    configurations
+                  </small>
+                )}
+              </div>
+            </div>
 
-              <div className="inspector-section">
-                <div className="section-heading">
-                  <div>
-                    <div className="section-kicker">CONFIGURATION INSPECTOR</div>
-                    <h2>Inspect by ID</h2>
-                    <p>Read the complete configuration and immutable hash.</p>
+            <div className="cfg-list">
+              {configs.map((entry) => (
+                <article className="cfg-card" key={String(entry.configId)}>
+                  <div className="cfg-id">
+                    <span>Config</span>
+                    <strong>#{String(entry.configId)}</strong>
                   </div>
-                </div>
 
-                <div className="inspect-controls">
-                  <input
-                    type="number"
-                    min="1"
-                    value={selectedId}
-                    onChange={(event) => setSelectedId(event.target.value)}
-                    placeholder="Configuration ID"
-                  />
-                  <button
-                    className="primary-button"
-                    onClick={() => inspectConfig()}
-                    disabled={busy || !connected || !correctNetwork}
-                  >
-                    {busy ? 'Inspecting...' : 'Inspect Configuration ↗'}
-                  </button>
-                </div>
-
-                {selectedConfig && (
-                  <div className="selected-config">
-                    <div className="selected-config-heading">
-                      <div>
-                        <div className="section-kicker">INSPECTED CONFIGURATION</div>
-                        <h3>Configuration #{String(selectedConfig.configId)}</h3>
-                      </div>
+                  <div className="cfg-body">
+                    <div className="cfg-title">
+                      <h3>Launch Configuration #{String(entry.configId)}</h3>
                       <span
-                        className={
-                          selectedConfig.enabled
-                            ? 'badge-enabled'
-                            : 'badge-disabled'
-                        }
+                        className={entry.enabled ? 'badge ok' : 'badge bad'}
                       >
                         <i></i>
-                        {selectedConfig.enabled ? 'ENABLED' : 'DISABLED'}
+                        {entry.enabled ? 'Enabled' : 'Disabled'}
                       </span>
                     </div>
 
-                    <div className="selected-facts">
-                      <div>
-                        <span>Owner</span>
-                        <strong>
-                          {shortAddress(selectedConfig.identity?.owner)}
-                        </strong>
-                      </div>
-                      <div>
-                        <span>Fee recipient</span>
-                        <strong>
-                          {shortAddress(selectedConfig.identity?.feeClaimer)}
-                        </strong>
-                      </div>
-                      <div>
-                        <span>Quote token</span>
-                        <strong>
-                          {shortAddress(selectedConfig.config?.quoteToken)}
-                        </strong>
-                      </div>
-                      <div>
-                        <span>Token decimals</span>
-                        <strong>
-                          {String(selectedConfig.config?.tokenDecimals)}
-                        </strong>
-                      </div>
-                      <div>
-                        <span>Migration mode</span>
-                        <strong>
-                          {String(selectedConfig.config?.migrationMode)}
-                        </strong>
-                      </div>
-                      <div>
-                        <span>Curve segments</span>
-                        <strong>{selectedConfig.segments?.length ?? 0}</strong>
-                      </div>
+                    <div className="cfg-facts">
+                      <span>
+                        Owner <b>{shortAddress(entry.identity?.owner)}</b>
+                      </span>
+                      <span>
+                        Quote token{' '}
+                        <b>{shortAddress(entry.config?.quoteToken)}</b>
+                      </span>
+                      <span>
+                        Migration mode{' '}
+                        <b>{String(entry.config?.migrationMode ?? '—')}</b>
+                      </span>
+                      <span>
+                        Segments <b>{entry.segments?.length ?? 0}</b>
+                      </span>
                     </div>
 
-                    <div className="hash-row">
-                      <span>CONFIGURATION HASH</span>
-                      <code>{selectedConfig.configHash}</code>
-                    </div>
-
-                    <pre className="json-view">{selectedConfigJSON}</pre>
+                    <button
+                      className="link-btn"
+                      onClick={() => inspectConfig(String(entry.configId))}
+                      disabled={busy}
+                    >
+                      Inspect full configuration <span aria-hidden="true">↗</span>
+                    </button>
                   </div>
-                )}
-              </div>
-            </section>
-          )}
+                </article>
+              ))}
+            </div>
 
-          {page === 'Config Studio' && (
-            <section className="registry-section" style={{ marginTop: 0 }}>
-              <div className="section-heading">
-                <div>
-                  <div className="section-kicker">GIWORA / CONFIGURATION STUDIO</div>
-                  <h2>Create Your Own Launch Configuration</h2>
-                  <p>
-                    Template #24 · GIWA Sepolia · Concentrated graduation. Every
-                    team recipient is set to your connected wallet.
-                  </p>
-                </div>
-              </div>
+            <div className="panel inspector">
+              <div className="mono-label accent">Configuration inspector</div>
+              <h3 className="panel-title">Inspect by ID</h3>
+              <p className="panel-sub">
+                Read the complete configuration and immutable hash.
+              </p>
 
-              <div className="selected-config">
-                <div className="section-kicker">TEAM WALLET</div>
-                <h3 style={{ marginTop: 8 }}>
-                  {connected ? shortAddress(account) : 'Connect Your Wallet First'}
-                </h3>
-
-                <div className="selected-facts">
-                  <div>
-                    <span>Configuration Owner</span>
-                    <strong>{connected ? shortAddress(account) : '—'}</strong>
-                  </div>
-                  <div>
-                    <span>Partner Recipient</span>
-                    <strong>{connected ? shortAddress(account) : '—'}</strong>
-                  </div>
-                  <div>
-                    <span>Liquidity Partner</span>
-                    <strong>{connected ? shortAddress(account) : '—'}</strong>
-                  </div>
-                  <div>
-                    <span>Leftover Receiver</span>
-                    <strong>{connected ? shortAddress(account) : '—'}</strong>
-                  </div>
-                </div>
-              </div>
-
-              <div className="selected-config" style={{ marginTop: 14 }}>
-                <div className="section-kicker">LAUNCH ECONOMICS</div>
-                <h3 style={{ marginTop: 8 }}>Template #24</h3>
-
-                <label
-                  style={{
-                    display: 'block',
-                    marginTop: 18,
-                    color: '#a69ba9',
-                    fontSize: 10,
-                  }}
-                >
-                  Token sale allocation
-                </label>
+              <div className="inspect-row">
                 <input
-                  value={saleSupply}
-                  onChange={(event) => {
-                    setSaleSupply(event.target.value);
-                    setPreview(null);
-                    setConfigStatus('idle');
-                  }}
-                  inputMode="decimal"
-                  placeholder="1000000"
-                  style={{
-                    width: '100%',
-                    maxWidth: 360,
-                    display: 'block',
-                    minHeight: 42,
-                    marginTop: 8,
-                    padding: '0 12px',
-                    color: '#f4eee9',
-                    background: '#100e12',
-                    border: '1px solid #3a323e',
-                    borderRadius: 8,
-                  }}
-                  disabled={busy || Boolean(createdConfig)}
+                  className="input"
+                  type="number"
+                  min="1"
+                  value={selectedId}
+                  onChange={(event) => setSelectedId(event.target.value)}
+                  placeholder="Configuration ID"
                 />
-
-                <label
-                  style={{
-                    display: 'block',
-                    marginTop: 16,
-                    color: '#a69ba9',
-                    fontSize: 10,
-                  }}
-                >
-                  Graduation quote threshold (WETH)
-                </label>
-                <input
-                  value={quoteThreshold}
-                  onChange={(event) => {
-                    setQuoteThreshold(event.target.value);
-                    setPreview(null);
-                    setConfigStatus('idle');
-                  }}
-                  inputMode="decimal"
-                  placeholder="0.001"
-                  style={{
-                    width: '100%',
-                    maxWidth: 360,
-                    display: 'block',
-                    minHeight: 42,
-                    marginTop: 8,
-                    padding: '0 12px',
-                    color: '#f4eee9',
-                    background: '#100e12',
-                    border: '1px solid #3a323e',
-                    borderRadius: 8,
-                  }}
-                  disabled={busy || Boolean(createdConfig)}
-                />
-
-                <div className="review-note" style={{ marginTop: 18 }}>
-                  <strong>Inherited policy</strong>
-                  <span>
-                    Template fee rates, LP ratios, vesting and graduation mode
-                    are inherited. The SDK recalculates curve reserves,
-                    migration base threshold, post-migration liquidity and total
-                    supply for the selected sale and WETH target.
-                  </span>
-                </div>
-
                 <button
-                  className="primary-button"
-                  style={{ marginTop: 20 }}
-                  onClick={prepareConfig}
-                  disabled={
-                    busy ||
-                    !connected ||
-                    !correctNetwork ||
-                    Boolean(createdConfig)
-                  }
+                  className="btn btn-primary"
+                  onClick={() => inspectConfig()}
+                  disabled={busy || !connected || !correctNetwork}
                 >
-                  {busy && configStatus === 'preparing'
-                    ? 'Calculating Configuration...'
-                    : 'Prepare Configuration Preview ↗'}
+                  {busy ? 'Inspecting...' : 'Inspect configuration'}{' '}
+                  <span aria-hidden="true">↗</span>
                 </button>
               </div>
 
-              {preview && (
-                <div className="selected-config" style={{ marginTop: 14 }}>
-                  <div className="selected-config-heading">
+              {selectedConfig && (
+                <div className="result">
+                  <div className="result-head">
                     <div>
-                      <div className="section-kicker">
-                        UNSIGNED CONFIGURATION PREVIEW
+                      <div className="mono-label accent">
+                        Inspected configuration
                       </div>
-                      <h3>Ready for review</h3>
+                      <h3>Configuration #{String(selectedConfig.configId)}</h3>
                     </div>
-                    <span className="badge-enabled">
-                      <i></i> VALIDATED
-                    </span>
-                  </div>
-
-                  <div className="selected-facts">
-                    <div>
-                      <span>Template</span>
-                      <strong>#{preview.templateId}</strong>
-                    </div>
-                    <div>
-                      <span>Snapshot block</span>
-                      <strong>{preview.blockNumber}</strong>
-                    </div>
-                    <div>
-                      <span>Token decimals</span>
-                      <strong>{preview.tokenDecimals}</strong>
-                    </div>
-                    <div>
-                      <span>WETH decimals</span>
-                      <strong>{preview.quoteDecimals}</strong>
-                    </div>
-                    <div>
-                      <span>Sale allocation</span>
-                      <strong>{preview.saleInput}</strong>
-                    </div>
-                    <div>
-                      <span>Graduation target</span>
-                      <strong>{preview.thresholdInput} WETH</strong>
-                    </div>
-                  </div>
-
-                  <div className="hash-row">
-                    <span>REVIEW HASH · REQUIRED BEFORE SIGNING</span>
-                    <code>{preview.reviewHash}</code>
-                  </div>
-
-                  <div className="review-note">
-                    <strong>Recipient verification</strong>
-                    <span>
-                      Configuration Owner, Partner Recipient, Liquidity Partner and
-                      Leftover Receiver are all set to {shortAddress(account)}.
-                    </span>
-                  </div>
-
-                  <div className="json-heading">
-                    <strong>Calculated Configuration and Economics</strong>
-                    <button
-                      className="text-button"
-                      onClick={() =>
-                        navigator.clipboard
-                          ?.writeText(previewJSON)
-                          .then(() => setNotice('Preview JSON copied.'))
-                          .catch(() => setNotice('Clipboard unavailable.'))
-                      }
+                    <span
+                      className={selectedConfig.enabled ? 'badge ok' : 'badge bad'}
                     >
-                      Copy preview JSON ↗
-                    </button>
-                  </div>
-
-                  <pre className="json-view">{previewJSON}</pre>
-
-                  <button
-                    className="primary-button"
-                    style={{ marginTop: 18 }}
-                    onClick={createConfig}
-                    disabled={busy || !connected || !correctNetwork}
-                  >
-                    {busy && configStatus === 'creating'
-                      ? 'Waiting for wallet confirmation...'
-                      : 'Create GIWORA Configuration ↗'}
-                  </button>
-
-                  <p
-                    style={{
-                      color: '#918895',
-                      fontSize: 10,
-                      lineHeight: 1.7,
-                      marginTop: 12,
-                    }}
-                  >
-                    This sends a transaction to the GIWA Sepolia Configuration
-                    Registry. Review the exact network, target and gas in
-                    your wallet before approving. The transaction creates a new
-                    immutable Configuration; it does not create a token.
-                  </p>
-                </div>
-              )}
-
-              {createdConfig && (
-                <div className="selected-config" style={{ marginTop: 14 }}>
-                  <div className="selected-config-heading">
-                    <div>
-                      <div className="section-kicker">ON-CHAIN SUCCESS</div>
-                      <h3>GIWORA Configuration #{createdConfig.configId}</h3>
-                    </div>
-                    <span className="badge-enabled">
-                      <i></i> CONFIRMED
+                      <i></i>
+                      {selectedConfig.enabled ? 'Enabled' : 'Disabled'}
                     </span>
                   </div>
 
-                  <div className="selected-facts">
-                    <div>
-                      <span>Configuration ID</span>
-                      <strong>#{createdConfig.configId}</strong>
-                    </div>
+                  <div className="facts">
                     <div>
                       <span>Owner</span>
-                      <strong>{shortAddress(createdConfig.owner)}</strong>
+                      <strong>
+                        {shortAddress(selectedConfig.identity?.owner)}
+                      </strong>
                     </div>
                     <div>
                       <span>Fee recipient</span>
-                      <strong>{shortAddress(createdConfig.feeClaimer)}</strong>
+                      <strong>
+                        {shortAddress(selectedConfig.identity?.feeClaimer)}
+                      </strong>
                     </div>
                     <div>
-                      <span>Block</span>
-                      <strong>{createdConfig.blockNumber}</strong>
+                      <span>Quote token</span>
+                      <strong>
+                        {shortAddress(selectedConfig.config?.quoteToken)}
+                      </strong>
+                    </div>
+                    <div>
+                      <span>Token decimals</span>
+                      <strong>
+                        {String(selectedConfig.config?.tokenDecimals)}
+                      </strong>
+                    </div>
+                    <div>
+                      <span>Migration mode</span>
+                      <strong>
+                        {String(selectedConfig.config?.migrationMode)}
+                      </strong>
+                    </div>
+                    <div>
+                      <span>Curve segments</span>
+                      <strong>{selectedConfig.segments?.length ?? 0}</strong>
                     </div>
                   </div>
 
-                  <div className="hash-row">
-                    <span>CONFIRMED CONFIGURATION HASH</span>
-                    <code>{createdConfig.configHash}</code>
+                  <div className="hash-box">
+                    <span>Configuration hash</span>
+                    <code>{selectedConfig.configHash}</code>
                   </div>
 
-                  <div className="hash-row" style={{ marginTop: 10 }}>
-                    <span>TRANSACTION HASH</span>
-                    <code>{createdConfig.transactionHash}</code>
-                  </div>
-
-                  <button
-                    className="primary-button"
-                    style={{ marginTop: 18 }}
-                    onClick={() => setPage('Token Launch')}
-                  >
-                    Continue to Token Launch ↗
-                  </button>
+                  <pre className="json-view">{selectedConfigJSON}</pre>
                 </div>
               )}
+            </div>
+          </section>
+        )}
 
-              {configStatus === 'error' && (
-                <div className="review-note" style={{ marginTop: 14 }}>
-                  <strong>Configuration Creation Failed</strong>
-                  <span>{error}</span>
+        {page === 'Config Studio' && (
+          <section className="page">
+            <div className="page-head">
+              <div>
+                <div className="mono-label accent">
+                  GIWORA / Configuration Studio
                 </div>
-              )}
-            </section>
-          )}
-
-          {page === 'Token Launch' && (
-            <section className="registry-section" style={{ marginTop: 0 }}>
-              <div className="section-heading">
-                <div>
-                  <div className="section-kicker">GIWORA / TOKEN LAUNCH</div>
-                  <h2>Launch a Token with Your Configuration</h2>
-                  <p>
-                    Create a Token and Its Ammora Launch Curve Using Your Own GIWORA
-                    Configuration After It Has Been Confirmed.
-                  </p>
-                </div>
+                <h2>Create Your Own Launch Configuration</h2>
+                <p>
+                  Template #24 · GIWA Sepolia · Concentrated graduation. Every
+                  team recipient is set to your connected wallet.
+                </p>
               </div>
+            </div>
 
-              {!createdConfig ? (
-                <div className="read-status-panel">
-                  <div className="read-status-icon">!</div>
-                  <div className="read-status-copy">
-                    <strong>No GIWORA configuration has been created yet.</strong>
-                    <span>
-                      Create and confirm your own GIWORA Configuration in Configuration Studio first.
-                      Token launches can only use configurations you created and confirmed.
-                    </span>
-                    <button
-                      className="text-button"
-                      onClick={() => setPage('Config Studio')}
-                    >
-                      Go to Configuration Studio ↗
-                    </button>
+            <ol className="progress" aria-label="Configuration progress">
+              <li className={studioStep >= 1 ? 'on' : ''}>
+                <b>1</b> Set economics
+              </li>
+              <li className={studioStep >= 2 ? 'on' : ''}>
+                <b>2</b> Review preview
+              </li>
+              <li className={studioStep >= 3 ? 'on' : ''}>
+                <b>3</b> Confirmed on-chain
+              </li>
+            </ol>
+
+            <div className="studio">
+              <div className="studio-main">
+                <div className="panel">
+                  <div className="mono-label accent">Launch economics</div>
+                  <h3 className="panel-title">Template #24</h3>
+
+                  <div className="form">
+                    <label className="field">
+                      <span className="field-label">Token sale allocation</span>
+                      <input
+                        className="input"
+                        value={saleSupply}
+                        onChange={(event) => {
+                          setSaleSupply(event.target.value);
+                          setPreview(null);
+                          setConfigStatus('idle');
+                        }}
+                        inputMode="decimal"
+                        placeholder="1000000"
+                        disabled={busy || Boolean(createdConfig)}
+                      />
+                    </label>
+
+                    <label className="field">
+                      <span className="field-label">
+                        Graduation quote threshold (WETH)
+                      </span>
+                      <input
+                        className="input"
+                        value={quoteThreshold}
+                        onChange={(event) => {
+                          setQuoteThreshold(event.target.value);
+                          setPreview(null);
+                          setConfigStatus('idle');
+                        }}
+                        inputMode="decimal"
+                        placeholder="0.001"
+                        disabled={busy || Boolean(createdConfig)}
+                      />
+                    </label>
                   </div>
-                </div>
-              ) : (
-                <div className="selected-config">
-                  <div className="section-kicker">CONFIRMED GIWORA CONFIGURATION</div>
-                  <h3 style={{ marginTop: 8 }}>
-                    Configuration #{createdConfig.configId}
-                  </h3>
-                  <p style={{ color: '#938895', fontSize: 10 }}>
-                    {createdConfig.configHash}
-                  </p>
 
-                  <label
-                    style={{
-                      display: 'block',
-                      marginTop: 18,
-                      color: '#a69ba9',
-                      fontSize: 10,
-                    }}
-                  >
-                    Token name
-                  </label>
-                  <input
-                    value={tokenName}
-                    onChange={(event) => setTokenName(event.target.value)}
-                    placeholder="GIWORA Token"
-                    disabled={busy}
-                    style={{
-                      width: '100%',
-                      maxWidth: 440,
-                      display: 'block',
-                      minHeight: 42,
-                      marginTop: 8,
-                      padding: '0 12px',
-                      color: '#f4eee9',
-                      background: '#100e12',
-                      border: '1px solid #3a323e',
-                      borderRadius: 8,
-                    }}
-                  />
-
-                  <label
-                    style={{
-                      display: 'block',
-                      marginTop: 16,
-                      color: '#a69ba9',
-                      fontSize: 10,
-                    }}
-                  >
-                    Token symbol
-                  </label>
-                  <input
-                    value={tokenSymbol}
-                    onChange={(event) =>
-                      setTokenSymbol(event.target.value.toUpperCase())
-                    }
-                    placeholder="GWR"
-                    maxLength={10}
-                    disabled={busy}
-                    style={{
-                      width: '100%',
-                      maxWidth: 440,
-                      display: 'block',
-                      minHeight: 42,
-                      marginTop: 8,
-                      padding: '0 12px',
-                      color: '#f4eee9',
-                      background: '#100e12',
-                      border: '1px solid #3a323e',
-                      borderRadius: 8,
-                    }}
-                  />
-
-                  <label
-                    style={{
-                      display: 'block',
-                      marginTop: 16,
-                      color: '#a69ba9',
-                      fontSize: 10,
-                    }}
-                  >
-                    Public metadata JSON URI
-                  </label>
-                  <input
-                    value={metadataURI}
-                    onChange={(event) => setMetadataURI(event.target.value)}
-                    placeholder="https://.../metadata.json or ipfs://..."
-                    disabled={busy}
-                    style={{
-                      width: '100%',
-                      maxWidth: 600,
-                      display: 'block',
-                      minHeight: 42,
-                      marginTop: 8,
-                      padding: '0 12px',
-                      color: '#f4eee9',
-                      background: '#100e12',
-                      border: '1px solid #3a323e',
-                      borderRadius: 8,
-                    }}
-                  />
-
-                  <div className="review-note" style={{ marginTop: 18 }}>
-                    <strong>Metadata requirement</strong>
+                  <div className="note">
+                    <strong>Inherited policy</strong>
                     <span>
-                      The URI must point to a public JSON metadata document. Do
-                      not use example.com or a placeholder address. We must
-                      upload and verify the actual metadata before launch.
+                      Template fee rates, LP ratios, vesting and graduation mode
+                      are inherited. The SDK recalculates curve reserves,
+                      migration base threshold, post-migration liquidity and
+                      total supply for the selected sale and WETH target.
                     </span>
                   </div>
 
                   <button
-                    className="primary-button"
-                    style={{ marginTop: 20 }}
-                    onClick={createToken}
-                    disabled={busy || !correctNetwork || !metadataURI.trim()}
+                    className="btn btn-primary btn-block-sm"
+                    onClick={prepareConfig}
+                    disabled={
+                      busy ||
+                      !connected ||
+                      !correctNetwork ||
+                      Boolean(createdConfig)
+                    }
                   >
-                    {busy && launchStatus === 'preparing'
-                      ? 'Preparing Token...'
-                      : 'Create Token ↗'}
+                    {busy && configStatus === 'preparing'
+                      ? 'Calculating configuration...'
+                      : 'Prepare configuration preview'}{' '}
+                    <span aria-hidden="true">↗</span>
                   </button>
+                </div>
 
-                  {createdLaunch && (
-                    <div className="review-note" style={{ marginTop: 18 }}>
-                      <strong>Token Creation Confirmed</strong>
-                      <span>
-                        Token: {createdLaunch.name} ({createdLaunch.symbol})
-                        <br />
-                        Token address: {createdLaunch.token}
-                        <br />
-                        Curve address: {createdLaunch.curve}
-                        <br />
-                        Config: #{createdLaunch.configId}
-                        <br />
-                        Block: {createdLaunch.blockNumber}
-                        <br />
-                        Transaction: {createdLaunch.transactionHash}
+                {preview && (
+                  <div className="panel">
+                    <div className="result-head">
+                      <div>
+                        <div className="mono-label accent">
+                          Unsigned configuration preview
+                        </div>
+                        <h3>Ready for review</h3>
+                      </div>
+                      <span className="badge ok">
+                        <i></i> Validated
                       </span>
                     </div>
-                  )}
+
+                    <div className="facts">
+                      <div>
+                        <span>Template</span>
+                        <strong>#{preview.templateId}</strong>
+                      </div>
+                      <div>
+                        <span>Snapshot block</span>
+                        <strong>{preview.blockNumber}</strong>
+                      </div>
+                      <div>
+                        <span>Token decimals</span>
+                        <strong>{preview.tokenDecimals}</strong>
+                      </div>
+                      <div>
+                        <span>WETH decimals</span>
+                        <strong>{preview.quoteDecimals}</strong>
+                      </div>
+                      <div>
+                        <span>Sale allocation</span>
+                        <strong>{preview.saleInput}</strong>
+                      </div>
+                      <div>
+                        <span>Graduation target</span>
+                        <strong>{preview.thresholdInput} WETH</strong>
+                      </div>
+                    </div>
+
+                    <div className="hash-box">
+                      <span>Review hash · required before signing</span>
+                      <code>{preview.reviewHash}</code>
+                    </div>
+
+                    <div className="note">
+                      <strong>Recipient verification</strong>
+                      <span>
+                        Configuration Owner, Partner Recipient, Liquidity Partner
+                        and Leftover Receiver are all set to{' '}
+                        {shortAddress(account)}.
+                      </span>
+                    </div>
+
+                    <div className="json-head">
+                      <strong>Calculated configuration and economics</strong>
+                      <button
+                        className="link-btn"
+                        onClick={() =>
+                          navigator.clipboard
+                            ?.writeText(previewJSON)
+                            .then(() => setNotice('Preview JSON copied.'))
+                            .catch(() => setNotice('Clipboard unavailable.'))
+                        }
+                      >
+                        Copy preview JSON <span aria-hidden="true">↗</span>
+                      </button>
+                    </div>
+
+                    <pre className="json-view">{previewJSON}</pre>
+
+                    <button
+                      className="btn btn-primary btn-block-sm"
+                      onClick={createConfig}
+                      disabled={busy || !connected || !correctNetwork}
+                    >
+                      {busy && configStatus === 'creating'
+                        ? 'Waiting for wallet confirmation...'
+                        : 'Create GIWORA Configuration'}{' '}
+                      <span aria-hidden="true">↗</span>
+                    </button>
+
+                    <p className="fineprint">
+                      This sends a transaction to the GIWA Sepolia Configuration
+                      Registry. Review the exact network, target and gas in your
+                      wallet before approving. The transaction creates a new
+                      immutable Configuration; it does not create a token.
+                    </p>
+                  </div>
+                )}
+
+                {createdConfig && (
+                  <div className="panel is-success">
+                    <div className="result-head">
+                      <div>
+                        <div className="mono-label accent">On-chain success</div>
+                        <h3>GIWORA Configuration #{createdConfig.configId}</h3>
+                      </div>
+                      <span className="badge ok">
+                        <i></i> Confirmed
+                      </span>
+                    </div>
+
+                    <div className="facts">
+                      <div>
+                        <span>Configuration ID</span>
+                        <strong>#{createdConfig.configId}</strong>
+                      </div>
+                      <div>
+                        <span>Owner</span>
+                        <strong>{shortAddress(createdConfig.owner)}</strong>
+                      </div>
+                      <div>
+                        <span>Fee recipient</span>
+                        <strong>{shortAddress(createdConfig.feeClaimer)}</strong>
+                      </div>
+                      <div>
+                        <span>Block</span>
+                        <strong>{createdConfig.blockNumber}</strong>
+                      </div>
+                    </div>
+
+                    <div className="hash-box">
+                      <span>Confirmed configuration hash</span>
+                      <code>{createdConfig.configHash}</code>
+                    </div>
+
+                    <div className="hash-box">
+                      <span>Transaction hash</span>
+                      <code>{createdConfig.transactionHash}</code>
+                    </div>
+
+                    <button
+                      className="btn btn-primary btn-block-sm"
+                      onClick={() => setPage('Token Launch')}
+                    >
+                      Continue to Token Launch <span aria-hidden="true">↗</span>
+                    </button>
+                  </div>
+                )}
+
+                {configStatus === 'error' && (
+                  <div className="note is-error">
+                    <strong>Configuration creation failed</strong>
+                    <span>{error}</span>
+                  </div>
+                )}
+              </div>
+
+              <aside className="studio-side">
+                <div className="panel panel-compact">
+                  <div className="mono-label accent">Team wallet</div>
+                  <h3 className="panel-title">
+                    {connected ? shortAddress(account) : 'Connect your wallet first'}
+                  </h3>
+
+                  <dl className="roles">
+                    {roleRows.map(([label, value]) => (
+                      <div key={label}>
+                        <dt>{label}</dt>
+                        <dd>{connected ? shortAddress(value) : '—'}</dd>
+                      </div>
+                    ))}
+                  </dl>
                 </div>
-              )}
-            </section>
-          )}
-
-          <section className="bottom-banner">
-            <div>
-              <div className="section-kicker">GIWORA LAUNCHPAD</div>
-              <h2>Build the next project on GIWA.</h2>
-              <p>Independent project. Built with Ammora SDK.</p>
+              </aside>
             </div>
-            <div className="banner-mark">G.</div>
           </section>
+        )}
 
-          <footer className="footer">
-            <span>© 2026 GIWORA</span>
-            <span>INDEPENDENT WEB3 LAUNCHPAD</span>
-            <span>GIWA SEPOLIA · AMMORA SDK</span>
-          </footer>
-        </div>
+        {page === 'Token Launch' && (
+          <section className="page">
+            <div className="page-head">
+              <div>
+                <div className="mono-label accent">GIWORA / Token Launch</div>
+                <h2>Launch a Token with Your Configuration</h2>
+                <p>
+                  Create a token and its Ammora launch curve using your own
+                  GIWORA configuration after it has been confirmed.
+                </p>
+              </div>
+            </div>
+
+            {!createdConfig ? (
+              <div className="status-panel">
+                <div className="status-icon">!</div>
+                <div className="status-copy">
+                  <strong>No GIWORA configuration has been created yet.</strong>
+                  <span>
+                    Create and confirm your own GIWORA Configuration in
+                    Configuration Studio first. Token launches can only use
+                    configurations you created and confirmed.
+                  </span>
+                  <button
+                    className="link-btn"
+                    onClick={() => setPage('Config Studio')}
+                  >
+                    Go to Configuration Studio <span aria-hidden="true">↗</span>
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="panel">
+                <div className="mono-label accent">
+                  Confirmed GIWORA configuration
+                </div>
+                <h3 className="panel-title">
+                  Configuration #{createdConfig.configId}
+                </h3>
+                <p className="hash-line">{createdConfig.configHash}</p>
+
+                <div className="form">
+                  <label className="field">
+                    <span className="field-label">Token name</span>
+                    <input
+                      className="input"
+                      value={tokenName}
+                      onChange={(event) => setTokenName(event.target.value)}
+                      placeholder="GIWORA Token"
+                      disabled={busy}
+                    />
+                  </label>
+
+                  <label className="field">
+                    <span className="field-label">Token symbol</span>
+                    <input
+                      className="input"
+                      value={tokenSymbol}
+                      onChange={(event) =>
+                        setTokenSymbol(event.target.value.toUpperCase())
+                      }
+                      placeholder="GWR"
+                      maxLength={10}
+                      disabled={busy}
+                    />
+                  </label>
+
+                  <label className="field">
+                    <span className="field-label">Public metadata JSON URI</span>
+                    <input
+                      className="input"
+                      value={metadataURI}
+                      onChange={(event) => setMetadataURI(event.target.value)}
+                      placeholder="https://.../metadata.json or ipfs://..."
+                      disabled={busy}
+                    />
+                  </label>
+                </div>
+
+                <div className="note">
+                  <strong>Metadata requirement</strong>
+                  <span>
+                    The URI must point to a public JSON metadata document. Do not
+                    use example.com or a placeholder address. Upload and verify
+                    your actual metadata before launching.
+                  </span>
+                </div>
+
+                <button
+                  className="btn btn-primary btn-block-sm"
+                  onClick={createToken}
+                  disabled={busy || !correctNetwork || !metadataURI.trim()}
+                >
+                  {busy && launchStatus === 'preparing'
+                    ? 'Preparing token...'
+                    : 'Create token'}{' '}
+                  <span aria-hidden="true">↗</span>
+                </button>
+
+                {createdLaunch && (
+                  <div className="note is-success">
+                    <strong>Token creation confirmed</strong>
+                    <span>
+                      Token: {createdLaunch.name} ({createdLaunch.symbol})
+                      <br />
+                      Token address: {createdLaunch.token}
+                      <br />
+                      Curve address: {createdLaunch.curve}
+                      <br />
+                      Config: #{createdLaunch.configId}
+                      <br />
+                      Block: {createdLaunch.blockNumber}
+                      <br />
+                      Transaction: {createdLaunch.transactionHash}
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
+          </section>
+        )}
+
+        <section className="cta">
+          <div>
+            <div className="mono-label accent">GIWORA launchpad</div>
+            <h2>Build the next project on GIWA.</h2>
+            <p>Independent project. Built with Ammora SDK.</p>
+          </div>
+          <div className="cta-mark" aria-hidden="true">
+            G.
+          </div>
+        </section>
       </main>
+
+      <footer className="footer">
+        <div className="footer-inner">
+          <span>© 2026 GIWORA</span>
+          <span>Independent Web3 launchpad</span>
+          <span>GIWA Sepolia · Ammora SDK</span>
+        </div>
+        <p className="footer-note">
+          GIWORA is an independent community-built project and is not an official
+          Ammora product. Deployed on a test network for testing and
+          experimentation.
+        </p>
+      </footer>
 
       {notice && (
         <div className="toast" onClick={() => setNotice('')}>
           <span>{notice}</span>
-          <button onClick={() => setNotice('')}>×</button>
+          <button onClick={() => setNotice('')} aria-label="Dismiss">
+            ×
+          </button>
         </div>
       )}
     </div>
