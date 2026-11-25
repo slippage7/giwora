@@ -116,6 +116,113 @@ function pacedTransport(provider, interval = 650) {
 }
 
 /**
+ * Minimal EIP-1193 style provider backed by the public GIWA Sepolia RPC.
+ * Used only for read-only registry queries when no wallet is available.
+ */
+function publicRpcProvider(url) {
+  let nextId = 0;
+
+  return {
+    request: async ({ method, params }) => {
+      let response;
+
+      try {
+        response = await fetch(url, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({
+            jsonrpc: '2.0',
+            id: ++nextId,
+            method,
+            params: params ?? [],
+          }),
+        });
+      } catch {
+        throw new Error(
+          'Could not reach the GIWA Sepolia RPC. Connect your wallet and try again.'
+        );
+      }
+
+      if (!response.ok) {
+        throw new Error(`GIWA Sepolia RPC returned HTTP ${response.status}.`);
+      }
+
+      const payload = await response.json();
+
+      if (payload.error) {
+        const failure = new Error(payload.error.message || 'RPC error');
+        failure.code = payload.error.code;
+        throw failure;
+      }
+
+      return payload.result;
+    },
+  };
+}
+
+/**
+ * The confirmed Configuration is remembered in this browser (per wallet and
+ * chain) so a page refresh does not lose it. Only plain strings are stored;
+ * Token Launch still re-verifies everything against the chain.
+ */
+const savedConfigKey = (address) =>
+  `giwora:config:${CHAIN_ID}:${String(address).toLowerCase()}`;
+
+function loadSavedConfig(address) {
+  try {
+    const raw = window.localStorage.getItem(savedConfigKey(address));
+    if (!raw) return null;
+
+    const value = JSON.parse(raw);
+
+    if (
+      value &&
+      /^\d+$/.test(String(value.configId)) &&
+      /^0x[0-9a-fA-F]{64}$/.test(String(value.configHash))
+    ) {
+      return {
+        configId: String(value.configId),
+        configHash: String(value.configHash),
+        owner: String(value.owner || ''),
+        feeClaimer: String(value.feeClaimer || ''),
+        blockNumber: String(value.blockNumber || ''),
+        transactionHash: String(value.transactionHash || ''),
+      };
+    }
+  } catch {
+    // storage unavailable or corrupted: behave as if nothing was saved
+  }
+
+  return null;
+}
+
+function saveConfig(address, value) {
+  try {
+    window.localStorage.setItem(
+      savedConfigKey(address),
+      JSON.stringify({
+        configId: String(value.configId),
+        configHash: String(value.configHash),
+        owner: String(value.owner),
+        feeClaimer: String(value.feeClaimer),
+        blockNumber: String(value.blockNumber),
+        transactionHash: String(value.transactionHash),
+      })
+    );
+  } catch {
+    // storage unavailable: the configuration simply is not remembered
+  }
+}
+
+function clearSavedConfig(address) {
+  try {
+    window.localStorage.removeItem(savedConfigKey(address));
+  } catch {
+    // nothing to clear
+  }
+}
+
+/**
  * Ammora's official concentrated template derivation.
  * Recalculates curve, migration reserve, destination liquidity and total supply.
  */
@@ -452,6 +559,28 @@ export default function App() {
     };
   }, []);
 
+  // Bring back this wallet's confirmed Configuration after a page refresh.
+  useEffect(() => {
+    if (!account || chainId !== CHAIN_ID) return;
+
+    const saved = loadSavedConfig(account);
+
+    if (saved) {
+      setCreatedConfig((current) => current ?? saved);
+    }
+  }, [account, chainId]);
+
+  function startNewConfig() {
+    if (account) clearSavedConfig(account);
+
+    setCreatedConfig(null);
+    setCreatedLaunch(null);
+    setPreview(null);
+    setConfigStatus('idle');
+    setLaunchStatus('idle');
+    setNotice('You can now create a new Configuration.');
+  }
+
   // Toasts used to stay on screen until clicked; clear them automatically.
   useEffect(() => {
     if (!notice) return undefined;
@@ -543,25 +672,46 @@ export default function App() {
     }
   }
 
-  async function getReadContext() {
+  /**
+   * Builds a verified read client at a finalized block.
+   *
+   * Anything that leads to a signature keeps requiring a wallet on GIWA
+   * Sepolia (requireWallet = true, the default). Pure registry reads pass
+   * requireWallet = false and fall back to the public RPC when there is no
+   * wallet, or it is on another network.
+   */
+  async function getReadContext({ requireWallet = true } = {}) {
     const provider = window.ethereum;
+    let source = null;
 
     if (!provider) {
-      throw new Error('No compatible wallet was detected.');
+      if (requireWallet) {
+        throw new Error('No compatible wallet was detected.');
+      }
+    } else {
+      try {
+        const activeChain = Number.parseInt(
+          await provider.request({ method: 'eth_chainId' }),
+          16
+        );
+
+        if (activeChain === CHAIN_ID) {
+          source = provider;
+        } else if (requireWallet) {
+          throw new Error('Switch your wallet to GIWA Sepolia first.');
+        }
+      } catch (err) {
+        if (requireWallet) throw err;
+      }
     }
 
-    const activeChain = Number.parseInt(
-      await provider.request({ method: 'eth_chainId' }),
-      16
-    );
-
-    if (activeChain !== CHAIN_ID) {
-      throw new Error('Switch your wallet to GIWA Sepolia first.');
+    if (!source) {
+      source = publicRpcProvider(deployment.chain.rpcUrls[0]);
     }
 
     const client = createPublicClient({
       chain: giwaChain,
-      transport: pacedTransport(provider),
+      transport: pacedTransport(source),
     });
 
     const actualChain = await client.getChainId();
@@ -590,18 +740,13 @@ export default function App() {
   }
 
   async function readRegistry() {
-    if (!connected || !correctNetwork) {
-      setNotice('Connect your wallet to GIWA Sepolia first.');
-      return;
-    }
-
     try {
       setBusy(true);
       setReadStatus('loading');
       setError('');
       setConfigs([]);
 
-      const { client, block } = await getReadContext();
+      const { client, block } = await getReadContext({ requireWallet: false });
 
       const nextId = await getAmmoraV4NextConfigId(
         client,
@@ -644,11 +789,6 @@ export default function App() {
   }
 
   async function inspectConfig(id = selectedId) {
-    if (!connected || !correctNetwork) {
-      setNotice('Connect your wallet to GIWA Sepolia first.');
-      return;
-    }
-
     try {
       const configId = BigInt(id);
 
@@ -660,7 +800,7 @@ export default function App() {
       setError('');
       setSelectedConfig(null);
 
-      const { client, block } = await getReadContext();
+      const { client, block } = await getReadContext({ requireWallet: false });
 
       const nextId = await getAmmoraV4NextConfigId(
         client,
@@ -939,6 +1079,15 @@ export default function App() {
         segments: confirmed.segments,
       });
 
+      saveConfig(activeAccount, {
+        configId: created.configId.toString(),
+        configHash: created.configHash,
+        owner: created.owner,
+        feeClaimer: created.feeClaimer,
+        blockNumber: receipt.blockNumber.toString(),
+        transactionHash: hash,
+      });
+
       setPreview(null);
       setConfigStatus('success');
       setNotice(`GIWORA Configuration #${created.configId} created successfully.`);
@@ -1016,6 +1165,16 @@ export default function App() {
         createdConfig.configHash.toLowerCase()
       ) {
         throw new Error('GIWORA Config hash does not match the saved receipt.');
+      }
+
+      // A remembered configuration must still belong to the connected wallet.
+      if (
+        String(entry.identity?.owner || '').toLowerCase() !==
+        activeAccount.toLowerCase()
+      ) {
+        throw new Error(
+          'This Configuration is not owned by the connected wallet. Start a new Configuration in Configuration Studio.'
+        );
       }
 
       const tokenDecimals = Number(entry.config.tokenDecimals);
@@ -1290,7 +1449,18 @@ export default function App() {
               <div className="stat">
                 <div className="stat-label">Registry configurations</div>
                 <div className="stat-value">{configCount || '—'}</div>
-                <div className="stat-caption">Registered on GIWA Sepolia</div>
+                <div className="stat-caption">
+                  {configCount ? (
+                    'Registered on GIWA Sepolia'
+                  ) : (
+                    <button
+                      className="link-btn"
+                      onClick={() => setPage('Registry')}
+                    >
+                      Open Registry to load <span aria-hidden="true">↗</span>
+                    </button>
+                  )}
+                </div>
               </div>
 
               <div className="stat">
@@ -1397,7 +1567,7 @@ export default function App() {
               <button
                 className="btn btn-primary"
                 onClick={readRegistry}
-                disabled={busy || !connected || !correctNetwork}
+                disabled={busy}
               >
                 {busy ? 'Reading...' : 'Read Registry'}{' '}
                 <span aria-hidden="true">↻</span>
@@ -1430,8 +1600,8 @@ export default function App() {
                   {readStatus === 'error' && 'Registry read failed'}
                 </strong>
                 <span>
-                  Read-only operation. Connect your wallet to GIWA Sepolia to
-                  read; no signature or funds are required.
+                  Read-only operation. No wallet, signature or funds are
+                  required.
                 </span>
                 {readStatus === 'success' && (
                   <small>
@@ -1509,7 +1679,7 @@ export default function App() {
                 <button
                   className="btn btn-primary"
                   onClick={() => inspectConfig()}
-                  disabled={busy || !connected || !correctNetwork}
+                  disabled={busy}
                 >
                   {busy ? 'Inspecting...' : 'Inspect configuration'}{' '}
                   <span aria-hidden="true">↗</span>
@@ -1811,12 +1981,28 @@ export default function App() {
                       <code>{createdConfig.transactionHash}</code>
                     </div>
 
-                    <button
-                      className="btn btn-primary btn-block-sm"
-                      onClick={() => setPage('Token Launch')}
-                    >
-                      Continue to Token Launch <span aria-hidden="true">↗</span>
-                    </button>
+                    <div className="btn-row">
+                      <button
+                        className="btn btn-primary btn-block-sm"
+                        onClick={() => setPage('Token Launch')}
+                      >
+                        Continue to Token Launch{' '}
+                        <span aria-hidden="true">↗</span>
+                      </button>
+
+                      <button
+                        className="btn btn-ghost btn-block-sm"
+                        onClick={startNewConfig}
+                        disabled={busy}
+                      >
+                        Start a new Configuration
+                      </button>
+                    </div>
+
+                    <p className="fineprint">
+                      This Configuration is remembered in this browser for your
+                      wallet, so you can come back and launch a token later.
+                    </p>
                   </div>
                 )}
 

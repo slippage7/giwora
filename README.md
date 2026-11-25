@@ -9,9 +9,9 @@ GIWORA lets you create your own launch configuration on top of a reviewed Ammora
 ## How it works
 
 1. **Connect Wallet.** Connect an injected wallet (for example MetaMask) and switch to GIWA Sepolia (chain ID 91342). The app can add the network for you.
-2. **Registry.** Read launch configurations directly from the Ammora V4 Config Registry and inspect any configuration by ID.
+2. **Registry.** Read launch configurations directly from the Ammora V4 Config Registry and inspect any configuration by ID. Reading works without a wallet.
 3. **Config Studio.** Choose a sale allocation and a graduation threshold. GIWORA derives the bonding curve, migration reserve, post-migration liquidity and total supply from Template #24 (concentrated graduation) and shows an unsigned preview with a review hash. All team roles are set to your wallet.
-4. **Create configuration.** Sign one transaction. The app re-checks the template hash and review hash before signing, then verifies the on-chain receipt against what you reviewed.
+4. **Create configuration.** Sign one transaction. The app re-checks the template hash and review hash before signing, then verifies the on-chain receipt against what you reviewed. Your confirmed configuration is remembered in this browser, so you can refresh the page and still launch a token later.
 5. **Token Launch.** Create a token and its Ammora launch curve from your confirmed configuration. Name, symbol and a public metadata JSON URI are prefilled so you can try it right away.
 
 ## Ammora SDK usage
