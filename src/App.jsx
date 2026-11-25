@@ -399,8 +399,8 @@ export default function App() {
   const [configStatus, setConfigStatus] = useState('idle');
   const [createdConfig, setCreatedConfig] = useState(null);
 
-  const [tokenName, setTokenName] = useState('GIWORA Test');
-  const [tokenSymbol, setTokenSymbol] = useState('GWRT');
+  const [tokenName, setTokenName] = useState('GIWORA Test Token');
+  const [tokenSymbol, setTokenSymbol] = useState('GWR');
   const [metadataURI, setMetadataURI] = useState(DEFAULT_METADATA_URI);
 
   const [launchStatus, setLaunchStatus] = useState('idle');
