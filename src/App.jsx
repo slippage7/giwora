@@ -130,6 +130,11 @@ function publicRpcProvider(url) {
         response = await fetch(url, {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
+          // Never leave a page stuck on "Loading…" if the RPC hangs.
+          signal:
+            typeof AbortSignal !== 'undefined' && AbortSignal.timeout
+              ? AbortSignal.timeout(20000)
+              : undefined,
           body: JSON.stringify({
             jsonrpc: '2.0',
             id: ++nextId,
@@ -492,6 +497,7 @@ export default function App() {
   const [blockNumber, setBlockNumber] = useState('');
   const [configs, setConfigs] = useState([]);
   const [readStatus, setReadStatus] = useState('idle');
+  const [countStatus, setCountStatus] = useState('loading');
 
   const [selectedId, setSelectedId] = useState('24');
   const [selectedConfig, setSelectedConfig] = useState(null);
@@ -569,6 +575,38 @@ export default function App() {
       setCreatedConfig((current) => current ?? saved);
     }
   }, [account, chainId]);
+
+  // Load the registry size once on open so the Overview stat shows a number
+  // without any wallet. If this fails the Registry page still works on demand.
+  useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const { client, block } = await getReadContext({
+          requireWallet: false,
+        });
+
+        const nextId = await getAmmoraV4NextConfigId(
+          client,
+          contracts.configRegistry,
+          block
+        );
+
+        if (cancelled) return;
+
+        const total = nextId > 1n ? nextId - 1n : 0n;
+        setConfigCount((current) => current || total.toString());
+        setCountStatus('ready');
+      } catch {
+        if (!cancelled) setCountStatus('failed');
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   function startNewConfig() {
     if (account) clearSavedConfig(account);
@@ -1448,19 +1486,32 @@ export default function App() {
             <section className="stats">
               <div className="stat">
                 <div className="stat-label">Registry configurations</div>
-                <div className="stat-value">{configCount || '—'}</div>
-                <div className="stat-caption">
-                  {configCount ? (
-                    'Registered on GIWA Sepolia'
-                  ) : (
-                    <button
-                      className="link-btn"
-                      onClick={() => setPage('Registry')}
-                    >
-                      Open Registry to load <span aria-hidden="true">↗</span>
-                    </button>
-                  )}
-                </div>
+                {configCount ? (
+                  <>
+                    <div className="stat-value">{configCount}</div>
+                    <div className="stat-caption">
+                      Registered on GIWA Sepolia
+                    </div>
+                  </>
+                ) : countStatus === 'loading' ? (
+                  <>
+                    <div className="stat-value sm">Loading…</div>
+                    <div className="stat-caption">Reading GIWA Sepolia</div>
+                  </>
+                ) : (
+                  <>
+                    <div className="stat-value sm">Not loaded</div>
+                    <div className="stat-caption">
+                      <button
+                        className="link-btn"
+                        onClick={() => setPage('Registry')}
+                      >
+                        Open Registry to load{' '}
+                        <span aria-hidden="true">↗</span>
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
 
               <div className="stat">
