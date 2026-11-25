@@ -1856,7 +1856,7 @@ export default function App() {
               </div>
             </div>
 
-            {!createdConfig ? (
+            {!createdConfig && (
               <div className="status-panel">
                 <div className="status-icon">!</div>
                 <div className="status-copy">
@@ -1874,15 +1874,22 @@ export default function App() {
                   </button>
                 </div>
               </div>
-            ) : (
-              <div className="panel">
-                <div className="mono-label accent">
-                  Confirmed GIWORA configuration
-                </div>
-                <h3 className="panel-title">
-                  Configuration #{createdConfig.configId}
-                </h3>
+            )}
+
+            <div className="panel">
+              <div className="mono-label accent">
+                {createdConfig
+                  ? 'Confirmed GIWORA configuration'
+                  : 'Token details'}
+              </div>
+              <h3 className="panel-title">
+                {createdConfig
+                  ? `Configuration #${createdConfig.configId}`
+                  : 'Available after you create a configuration'}
+              </h3>
+              {createdConfig && (
                 <p className="hash-line">{createdConfig.configHash}</p>
+              )}
 
                 <div className="form">
                   <label className="field">
@@ -1892,7 +1899,7 @@ export default function App() {
                       value={tokenName}
                       onChange={(event) => setTokenName(event.target.value)}
                       placeholder="GIWORA Token"
-                      disabled={busy}
+                      disabled={busy || !createdConfig}
                     />
                   </label>
 
@@ -1906,7 +1913,7 @@ export default function App() {
                       }
                       placeholder="GWR"
                       maxLength={10}
-                      disabled={busy}
+                      disabled={busy || !createdConfig}
                     />
                   </label>
 
@@ -1917,7 +1924,7 @@ export default function App() {
                       value={metadataURI}
                       onChange={(event) => setMetadataURI(event.target.value)}
                       placeholder="https://.../metadata.json or ipfs://..."
-                      disabled={busy}
+                      disabled={busy || !createdConfig}
                     />
                   </label>
                 </div>
@@ -1934,7 +1941,9 @@ export default function App() {
                 <button
                   className="btn btn-primary btn-block-sm"
                   onClick={createToken}
-                  disabled={busy || !correctNetwork || !metadataURI.trim()}
+                  disabled={
+                    busy || !createdConfig || !correctNetwork || !metadataURI.trim()
+                  }
                 >
                   {busy && launchStatus === 'preparing'
                     ? 'Preparing token...'
@@ -1960,8 +1969,7 @@ export default function App() {
                     </span>
                   </div>
                 )}
-              </div>
-            )}
+            </div>
           </section>
         )}
 

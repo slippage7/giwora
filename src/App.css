@@ -1859,3 +1859,8 @@ input:disabled {
     transition: none;
   }
 }
+
+/* Token Launch: space between the "no configuration" notice and the form */
+.status-panel + .panel {
+  margin-top: 16px;
+}
