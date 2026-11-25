@@ -38,7 +38,10 @@ const CHAIN_ID = 91342;
 const CHAIN_HEX = '0x164ce';
 const TEMPLATE_ID = 24n;
 
-const DEFAULT_WALLET = '0x4C855204c4EeD411a03D20acE673d08837A8F5ee';
+// Prefilled so first-time visitors can try a launch without hosting their own JSON.
+const DEFAULT_METADATA_URI = 'https://giwora.vercel.app/metadata/gwr.json';
+
+const DEFAULT_WALLET ='0x4C855204c4EeD411a03D20acE673d08837A8F5ee';
 
 const giwaChain = defineChain({
   id: CHAIN_ID,
@@ -398,7 +401,7 @@ export default function App() {
 
   const [tokenName, setTokenName] = useState('GIWORA Test');
   const [tokenSymbol, setTokenSymbol] = useState('GWRT');
-  const [metadataURI, setMetadataURI] = useState('');
+  const [metadataURI, setMetadataURI] = useState(DEFAULT_METADATA_URI);
 
   const [launchStatus, setLaunchStatus] = useState('idle');
   const [createdLaunch, setCreatedLaunch] = useState(null);
