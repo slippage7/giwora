@@ -41,8 +41,6 @@ const TEMPLATE_ID = 24n;
 // Prefilled so first-time visitors can try a launch without hosting their own JSON.
 const DEFAULT_METADATA_URI = 'https://giwora.vercel.app/metadata/gwr.json';
 
-const DEFAULT_WALLET ='0x4C855204c4EeD411a03D20acE673d08837A8F5ee';
-
 const giwaChain = defineChain({
   id: CHAIN_ID,
   name: deployment.chain.name,
@@ -453,6 +451,13 @@ export default function App() {
       provider.removeListener?.('chainChanged', onChainChanged);
     };
   }, []);
+
+  // Toasts used to stay on screen until clicked; clear them automatically.
+  useEffect(() => {
+    if (!notice) return undefined;
+    const timer = setTimeout(() => setNotice(''), 8000);
+    return () => clearTimeout(timer);
+  }, [notice]);
 
   async function connectWallet() {
     const provider = window.ethereum;
@@ -1425,7 +1430,8 @@ export default function App() {
                   {readStatus === 'error' && 'Registry read failed'}
                 </strong>
                 <span>
-                  Read-only operation. No wallet signature or funds are required.
+                  Read-only operation. Connect your wallet to GIWA Sepolia to
+                  read; no signature or funds are required.
                 </span>
                 {readStatus === 'success' && (
                   <small>
