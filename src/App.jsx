@@ -30,6 +30,13 @@ import {
 } from '@ammora-protocol/sdk';
 
 import './App.css';
+import {
+  checkLogoFile,
+  formatBytes,
+  normalizeLink,
+  uploadLogo,
+  uploadMetadata,
+} from './metadata.js';
 
 const deployment = giwaSepoliaAutoRouteDeployment;
 const contracts = deployment.contracts.launch;
@@ -37,9 +44,6 @@ const contracts = deployment.contracts.launch;
 const CHAIN_ID = 91342;
 const CHAIN_HEX = '0x164ce';
 const TEMPLATE_ID = 24n;
-
-// Prefilled so first-time visitors can try a launch without hosting their own JSON.
-const DEFAULT_METADATA_URI = 'https://giwora.vercel.app/metadata/gwr.json';
 
 const giwaChain = defineChain({
   id: CHAIN_ID,
@@ -510,9 +514,19 @@ export default function App() {
   const [configStatus, setConfigStatus] = useState('idle');
   const [createdConfig, setCreatedConfig] = useState(null);
 
-  const [tokenName, setTokenName] = useState('GIWORA Test Token');
-  const [tokenSymbol, setTokenSymbol] = useState('GWR');
-  const [metadataURI, setMetadataURI] = useState(DEFAULT_METADATA_URI);
+  const [tokenName, setTokenName] = useState('');
+  const [tokenSymbol, setTokenSymbol] = useState('');
+  const [tokenDescription, setTokenDescription] = useState('');
+  const [tokenWebsite, setTokenWebsite] = useState('');
+  const [tokenX, setTokenX] = useState('');
+  const [tokenTelegram, setTokenTelegram] = useState('');
+  const [metadataURI, setMetadataURI] = useState('');
+  const [metaMode, setMetaMode] = useState('form'); // 'form' | 'uri'
+  const [logoFile, setLogoFile] = useState(null);
+  const [logoPreview, setLogoPreview] = useState('');
+  const [logoError, setLogoError] = useState('');
+  const [logoDragging, setLogoDragging] = useState(false);
+  const [launchStep, setLaunchStep] = useState('');
 
   const [launchStatus, setLaunchStatus] = useState('idle');
   const [createdLaunch, setCreatedLaunch] = useState(null);
@@ -1137,6 +1151,36 @@ export default function App() {
     }
   }
 
+  // Local preview of the chosen logo; the object URL is released on change.
+  useEffect(() => {
+    if (!logoFile) {
+      setLogoPreview('');
+      return undefined;
+    }
+
+    const url = URL.createObjectURL(logoFile);
+    setLogoPreview(url);
+
+    return () => URL.revokeObjectURL(url);
+  }, [logoFile]);
+
+  function pickLogo(file) {
+    const problem = checkLogoFile(file);
+
+    if (problem) {
+      setLogoError(problem);
+      return;
+    }
+
+    setLogoError('');
+    setLogoFile(file);
+  }
+
+  function clearLogo() {
+    setLogoFile(null);
+    setLogoError('');
+  }
+
   async function createToken() {
     if (!createdConfig) {
       setError('Create GIWORA Config first.');
@@ -1153,7 +1197,7 @@ export default function App() {
     try {
       const name = tokenName.trim();
       const symbol = tokenSymbol.trim().toUpperCase();
-      const uri = metadataURI.trim();
+      let uri = metadataURI.trim();
 
       if (!name || name.length > 64) {
         throw new Error('Token name must contain 1–64 characters.');
@@ -1163,8 +1207,26 @@ export default function App() {
         throw new Error('Symbol must contain 2–10 letters or numbers.');
       }
 
-      if (!/^(https:\/\/|ipfs:\/\/)\S+$/i.test(uri)) {
-        throw new Error('Enter a public HTTPS or IPFS metadata JSON URI.');
+      let links = null;
+
+      if (metaMode === 'uri') {
+        if (!/^(https:\/\/|ipfs:\/\/)\S+$/i.test(uri)) {
+          throw new Error('Enter a public HTTPS or IPFS metadata JSON URI.');
+        }
+      } else {
+        links = {
+          website: normalizeLink('website', tokenWebsite),
+          x: normalizeLink('x', tokenX),
+          telegram: normalizeLink('telegram', tokenTelegram),
+        };
+
+        const labels = { website: 'website', x: 'X', telegram: 'Telegram' };
+
+        for (const key of Object.keys(links)) {
+          if (links[key] === null) {
+            throw new Error(`The ${labels[key]} link does not look right.`);
+          }
+        }
       }
 
       setBusy(true);
@@ -1216,6 +1278,27 @@ export default function App() {
       }
 
       const tokenDecimals = Number(entry.config.tokenDecimals);
+
+      // Store the logo and metadata only after every on-chain check passed.
+      if (metaMode === 'form') {
+        let image = '';
+
+        if (logoFile) {
+          setLaunchStep('logo');
+          image = await uploadLogo(logoFile);
+        }
+
+        setLaunchStep('metadata');
+        uri = await uploadMetadata({
+          name,
+          symbol,
+          description: tokenDescription,
+          image,
+          ...links,
+        });
+
+        setLaunchStep('');
+      }
 
       const transaction = buildCreateAmmoraV4Launch(
         {
@@ -1289,6 +1372,7 @@ export default function App() {
       setLaunchStatus('error');
       setError(errorMessage(err));
     } finally {
+      setLaunchStep('');
       setBusy(false);
     }
   }
@@ -2134,63 +2218,308 @@ export default function App() {
                 <p className="hash-line">{createdConfig.configHash}</p>
               )}
 
-                <div className="form">
-                  <label className="field">
-                    <span className="field-label">Token name</span>
-                    <input
-                      className="input"
-                      value={tokenName}
-                      onChange={(event) => setTokenName(event.target.value)}
-                      placeholder="GIWORA Token"
-                      disabled={busy || !createdConfig}
-                    />
-                  </label>
+                <div className="launch-grid">
+                  <div className="launch-form">
+                    <div className="field-row">
+                      <label className="field">
+                        <span className="field-label">Token name</span>
+                        <input
+                          className="input"
+                          value={tokenName}
+                          onChange={(event) => setTokenName(event.target.value)}
+                          placeholder="e.g. Moon Cat"
+                          maxLength={64}
+                          autoComplete="off"
+                          disabled={busy || !createdConfig}
+                        />
+                      </label>
 
-                  <label className="field">
-                    <span className="field-label">Token symbol</span>
-                    <input
-                      className="input"
-                      value={tokenSymbol}
-                      onChange={(event) =>
-                        setTokenSymbol(event.target.value.toUpperCase())
-                      }
-                      placeholder="GWR"
-                      maxLength={10}
-                      disabled={busy || !createdConfig}
-                    />
-                  </label>
+                      <label className="field field-sm">
+                        <span className="field-label">Symbol</span>
+                        <input
+                          className="input"
+                          value={tokenSymbol}
+                          onChange={(event) =>
+                            setTokenSymbol(
+                              event.target.value
+                                .toUpperCase()
+                                .replace(/[^A-Z0-9]/g, '')
+                            )
+                          }
+                          placeholder="MCAT"
+                          maxLength={10}
+                          autoComplete="off"
+                          disabled={busy || !createdConfig}
+                        />
+                      </label>
+                    </div>
 
-                  <label className="field">
-                    <span className="field-label">Public metadata JSON URI</span>
-                    <input
-                      className="input"
-                      value={metadataURI}
-                      onChange={(event) => setMetadataURI(event.target.value)}
-                      placeholder="https://.../metadata.json or ipfs://..."
-                      disabled={busy || !createdConfig}
-                    />
-                  </label>
+                    <div className="seg" role="group" aria-label="Metadata source">
+                      <button
+                        type="button"
+                        className={metaMode === 'form' ? 'seg-btn on' : 'seg-btn'}
+                        onClick={() => setMetaMode('form')}
+                        disabled={busy}
+                      >
+                        Create it for me
+                      </button>
+                      <button
+                        type="button"
+                        className={metaMode === 'uri' ? 'seg-btn on' : 'seg-btn'}
+                        onClick={() => setMetaMode('uri')}
+                        disabled={busy}
+                      >
+                        I have a metadata link
+                      </button>
+                    </div>
+
+                    {metaMode === 'form' ? (
+                      <>
+                        <div className="field">
+                          <span className="field-label">
+                            Logo <em>optional</em>
+                          </span>
+
+                          <label
+                            className={
+                              'dropzone' +
+                              (logoDragging ? ' is-drag' : '') +
+                              (logoFile ? ' has-file' : '')
+                            }
+                            onDragOver={(event) => {
+                              event.preventDefault();
+                              setLogoDragging(true);
+                            }}
+                            onDragLeave={() => setLogoDragging(false)}
+                            onDrop={(event) => {
+                              event.preventDefault();
+                              setLogoDragging(false);
+                              if (busy || !createdConfig) return;
+                              pickLogo(event.dataTransfer.files?.[0]);
+                            }}
+                          >
+                            <input
+                              className="visually-hidden"
+                              type="file"
+                              accept="image/png,image/jpeg,image/webp,image/gif"
+                              onChange={(event) => {
+                                pickLogo(event.target.files?.[0]);
+                                event.target.value = '';
+                              }}
+                              disabled={busy || !createdConfig}
+                            />
+
+                            {logoPreview ? (
+                              <img
+                                className="dz-thumb"
+                                src={logoPreview}
+                                alt="Selected logo"
+                              />
+                            ) : (
+                              <span className="dz-icon" aria-hidden="true">
+                                ↑
+                              </span>
+                            )}
+
+                            <span className="dz-copy">
+                              <strong>
+                                {logoFile
+                                  ? logoFile.name
+                                  : 'Drop an image here or click to browse'}
+                              </strong>
+                              <small>
+                                {logoFile
+                                  ? formatBytes(logoFile.size)
+                                  : 'PNG, JPG, WEBP or GIF · up to 2 MB · square works best'}
+                              </small>
+                            </span>
+
+                            {logoFile && (
+                              <button
+                                type="button"
+                                className="link-btn dz-remove"
+                                onClick={(event) => {
+                                  event.preventDefault();
+                                  clearLogo();
+                                }}
+                                disabled={busy}
+                              >
+                                Remove
+                              </button>
+                            )}
+                          </label>
+
+                          {logoError && (
+                            <span className="field-error" role="alert">
+                              {logoError}
+                            </span>
+                          )}
+                        </div>
+
+                        <label className="field">
+                          <span className="field-label">
+                            Description <em>optional</em>
+                          </span>
+                          <textarea
+                            className="input textarea"
+                            value={tokenDescription}
+                            onChange={(event) =>
+                              setTokenDescription(event.target.value)
+                            }
+                            placeholder="What is this token about?"
+                            maxLength={500}
+                            rows={3}
+                            disabled={busy || !createdConfig}
+                          />
+                          <span className="field-count">
+                            {tokenDescription.length}/500
+                          </span>
+                        </label>
+
+                        <div className="field-row three">
+                          <label className="field">
+                            <span className="field-label">
+                              Website <em>optional</em>
+                            </span>
+                            <input
+                              className="input"
+                              value={tokenWebsite}
+                              onChange={(event) =>
+                                setTokenWebsite(event.target.value)
+                              }
+                              placeholder="example.com"
+                              autoComplete="off"
+                              disabled={busy || !createdConfig}
+                            />
+                          </label>
+
+                          <label className="field">
+                            <span className="field-label">
+                              X <em>optional</em>
+                            </span>
+                            <input
+                              className="input"
+                              value={tokenX}
+                              onChange={(event) => setTokenX(event.target.value)}
+                              placeholder="@yourname"
+                              autoComplete="off"
+                              disabled={busy || !createdConfig}
+                            />
+                          </label>
+
+                          <label className="field">
+                            <span className="field-label">
+                              Telegram <em>optional</em>
+                            </span>
+                            <input
+                              className="input"
+                              value={tokenTelegram}
+                              onChange={(event) =>
+                                setTokenTelegram(event.target.value)
+                              }
+                              placeholder="@yourgroup"
+                              autoComplete="off"
+                              disabled={busy || !createdConfig}
+                            />
+                          </label>
+                        </div>
+
+                        <div className="note">
+                          <strong>Everything here becomes public</strong>
+                          <span>
+                            Your logo and details are saved to public storage so
+                            wallets and explorers can show them. The link to them
+                            is written into the launch transaction.
+                          </span>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <label className="field">
+                          <span className="field-label">
+                            Public metadata JSON URI
+                          </span>
+                          <input
+                            className="input"
+                            value={metadataURI}
+                            onChange={(event) => setMetadataURI(event.target.value)}
+                            placeholder="https://.../metadata.json or ipfs://..."
+                            autoComplete="off"
+                            disabled={busy || !createdConfig}
+                          />
+                        </label>
+
+                        <div className="note">
+                          <strong>Metadata requirement</strong>
+                          <span>
+                            The link must point to a public JSON metadata
+                            document. Do not use example.com or a placeholder
+                            address. Upload and verify your actual metadata
+                            before launching.
+                          </span>
+                        </div>
+                      </>
+                    )}
+                  </div>
+
+                  {metaMode === 'form' && (
+                    <aside className="token-card" aria-label="Token preview">
+                      <span className="mono-label">Preview</span>
+
+                      <div className="token-card-logo">
+                        {logoPreview ? (
+                          <img src={logoPreview} alt="" />
+                        ) : (
+                          <b>
+                            {(tokenSymbol || tokenName || 'G')
+                              .trim()
+                              .charAt(0)
+                              .toUpperCase()}
+                          </b>
+                        )}
+                      </div>
+
+                      <strong className="token-card-name">
+                        {tokenName.trim() || 'Token name'}
+                      </strong>
+                      <span className="token-card-symbol">
+                        {tokenSymbol || 'SYMBOL'}
+                      </span>
+
+                      <p className={tokenDescription.trim() ? '' : 'is-empty'}>
+                        {tokenDescription.trim() ||
+                          'Your description will show up here.'}
+                      </p>
+
+                      <div className="token-card-links">
+                        {tokenWebsite.trim() && <span>Website</span>}
+                        {tokenX.trim() && <span>X</span>}
+                        {tokenTelegram.trim() && <span>Telegram</span>}
+                      </div>
+                    </aside>
+                  )}
                 </div>
 
-                <div className="note">
-                  <strong>Metadata requirement</strong>
-                  <span>
-                    The URI must point to a public JSON metadata document. Do not
-                    use example.com or a placeholder address. Upload and verify
-                    your actual metadata before launching.
-                  </span>
-                </div>
-
-                <button
+                
+<button
                   className="btn btn-primary btn-block-sm"
                   onClick={createToken}
                   disabled={
-                    busy || !createdConfig || !correctNetwork || !metadataURI.trim()
+                    busy ||
+                    !createdConfig ||
+                    !correctNetwork ||
+                    !tokenName.trim() ||
+                    !tokenSymbol.trim() ||
+                    (metaMode === 'uri' && !metadataURI.trim())
                   }
                 >
-                  {busy && launchStatus === 'preparing'
-                    ? 'Preparing token...'
-                    : 'Create token'}{' '}
+                  {launchStep === 'logo'
+                    ? 'Uploading Logo...'
+                    : launchStep === 'metadata'
+                    ? 'Saving Details...'
+                    : busy && launchStatus === 'preparing'
+                    ? 'Preparing Token...'
+                    : 'Create Token'}{' '}
                   <span aria-hidden="true">↗</span>
                 </button>
 

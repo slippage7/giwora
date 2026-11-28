@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@ammora-protocol/sdk": "0.3.9",
+    "@vercel/blob": "^1.1.1",
     "viem": "2.58.2",
     "react": "19.3.1",
     "react-dom": "19.3.1"

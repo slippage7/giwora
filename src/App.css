@@ -1864,3 +1864,305 @@ input:disabled {
 .status-panel + .panel {
   margin-top: 16px;
 }
+
+/* ---------- Token Launch form ---------- */
+
+.launch-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  align-items: start;
+  gap: 28px;
+  margin-top: 24px;
+}
+
+.launch-form {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+}
+
+.launch-form .field {
+  max-width: none;
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 150px;
+  gap: 14px;
+}
+
+.field-row.three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.field-label em {
+  margin-left: 6px;
+  color: var(--dim);
+  font: 500 10.5px/1 var(--font-mono);
+  font-style: normal;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.textarea {
+  height: auto;
+  min-height: 92px;
+  padding: 12px 14px;
+  font-family: var(--font-body);
+  line-height: 1.55;
+  resize: vertical;
+}
+
+.field-count {
+  justify-self: end;
+  color: var(--dim);
+  font: 500 11px/1 var(--font-mono);
+}
+
+.field-error {
+  color: var(--bad);
+  font-size: 12.5px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* segmented switch */
+
+.seg {
+  display: inline-grid;
+  grid-auto-flow: column;
+  gap: 4px;
+  justify-self: start;
+  padding: 4px;
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  background: var(--bg);
+}
+
+.seg-btn {
+  height: 34px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: color 0.16s ease, background 0.16s ease;
+}
+
+.seg-btn:hover:not(:disabled) {
+  color: var(--text);
+}
+
+.seg-btn.on {
+  background: var(--surface-3);
+  color: #fff;
+  box-shadow: inset 0 0 0 1px var(--accent-line);
+}
+
+/* logo drop area */
+
+.dropzone {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 92px;
+  padding: 16px;
+  border: 1.5px dashed var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--bg);
+  cursor: pointer;
+  transition: border-color 0.16s ease, background 0.16s ease;
+}
+
+.dropzone:hover,
+.dropzone:focus-within,
+.dropzone.is-drag {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.dropzone.has-file {
+  border-style: solid;
+  border-color: var(--line-strong);
+}
+
+.dz-icon,
+.dz-thumb {
+  flex: 0 0 60px;
+  width: 60px;
+  height: 60px;
+  border-radius: 14px;
+}
+
+.dz-icon {
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--accent-line);
+  background: var(--accent-soft);
+  color: var(--accent-hi);
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.dz-thumb {
+  object-fit: cover;
+  border: 1px solid var(--line-strong);
+}
+
+.dz-copy {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
+}
+
+.dz-copy strong {
+  overflow: hidden;
+  font-size: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dz-copy small {
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+.dz-remove {
+  flex: 0 0 auto;
+  align-self: flex-start;
+  color: var(--muted);
+}
+
+/* live preview card */
+
+.token-card {
+  position: sticky;
+  top: 92px;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 22px 20px 24px;
+  border: 1px solid var(--line-strong);
+  border-radius: 18px;
+  background:
+    radial-gradient(260px 160px at 50% 0, rgba(255, 122, 26, 0.14), transparent 70%),
+    var(--surface-2);
+  text-align: center;
+}
+
+.token-card .mono-label {
+  justify-self: start;
+}
+
+.token-card-logo {
+  display: grid;
+  place-items: center;
+  width: 92px;
+  height: 92px;
+  margin: 10px 0 8px;
+  overflow: hidden;
+  border: 1px solid var(--accent-line);
+  border-radius: 26px;
+  background: linear-gradient(145deg, #ffb36e, #e0651a);
+  box-shadow: 0 0 36px rgba(255, 122, 26, 0.25);
+}
+
+.token-card-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.token-card-logo b {
+  color: var(--accent-ink);
+  font: 800 40px/1 var(--font-display);
+}
+
+.token-card-name {
+  max-width: 100%;
+  font: 700 20px/1.2 var(--font-display);
+  letter-spacing: -0.02em;
+  color: #fff;
+  overflow-wrap: anywhere;
+}
+
+.token-card-symbol {
+  padding: 4px 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  color: var(--accent-hi);
+  font: 500 11.5px/1 var(--font-mono);
+  letter-spacing: 0.08em;
+}
+
+.token-card p {
+  margin: 10px 0 0;
+  color: var(--text-soft);
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.token-card p.is-empty {
+  color: var(--dim);
+}
+
+.token-card-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.token-card-links span {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--surface-3);
+  color: var(--muted);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+@media (max-width: 900px) {
+  .launch-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .token-card {
+    position: static;
+    order: -1;
+  }
+}
+
+@media (max-width: 620px) {
+  .field-row,
+  .field-row.three {
+    grid-template-columns: 1fr;
+  }
+
+  .seg {
+    justify-self: stretch;
+    grid-auto-flow: row;
+  }
+
+  .dropzone {
+    flex-wrap: wrap;
+  }
+
+  .textarea {
+    font-size: 16px;
+  }
+}
